@@ -66,7 +66,7 @@ export default function HeroSection() {
                 </span>{" "}
                 {t.heroH1Post}
               </h1>
-              <p className="text-base sm:text-lg text-text-secondary max-w-[65ch] mx-auto lg:mx-0 leading-relaxed font-sans font-normal backdrop-blur-xs">
+              <p className="text-base sm:text-lg text-text-secondary max-w-[65ch] mx-auto lg:mx-0 leading-relaxed font-sans font-normal lg:backdrop-blur-xs">
                 {t.heroSub}
               </p>
             </div>
