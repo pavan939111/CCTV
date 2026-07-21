@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import InnerPageTemplate from "@/components/ui/InnerPageTemplate";
 
 export const metadata: Metadata = {
-  title: "Professional CCTV Camera Installation in Hyderabad | Nakshatra CCTV",
-  description: "Get certified CCTV camera installation services for homes, offices, apartments, and factories in Hyderabad. Same-day site survey & 24/7 support.",
+  title: "Professional CCTV Camera Installation in Nalgonda & Suryapet | Nakshatra CCTV",
+  description: "Get certified CCTV camera installation services for homes, offices, apartments, and factories in Nalgonda & Suryapet. Same-day site survey & 24/7 support.",
 };
 
 export default function CCTVInstallationPage() {
@@ -11,7 +11,7 @@ export default function CCTVInstallationPage() {
     <InnerPageTemplate
       title="CCTV Installation Services"
       subtitle="Complete end-to-end security camera installation for homes, apartments, offices, factories, shops, and commercial facilities."
-      description="Nakshatra CCTV Services provides professional, certified CCTV installation across Hyderabad. Our expert technicians handle perimeter wiring, conduit layout, camera mounting, DVR/NVR network configuration, mobile remote access setup, and post-installation testing."
+      description="Nakshatra CCTV Services provides professional, certified CCTV installation across Nalgonda & Suryapet. Our expert technicians handle perimeter wiring, conduit layout, camera mounting, DVR/NVR network configuration, mobile remote access setup, and post-installation testing."
       highlights={[
         "Certified CCTV Technicians",
         "Genuine CP Plus, Hikvision & Dahua Hardware",
@@ -39,7 +39,7 @@ export default function CCTVInstallationPage() {
       ]}
       faqs={[
         {
-          q: "How much does CCTV installation cost in Hyderabad?",
+          q: "How much does CCTV installation cost in Nalgonda & Suryapet?",
           a: "CCTV installation costs depend on the number of cameras, DVR/NVR channels, and cable length. Contact us for a free site visit and customized quotation."
         },
         {

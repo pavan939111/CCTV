@@ -9,6 +9,7 @@ import MobileBottomBar from "@/components/layout/MobileBottomBar";
 import FloatingActions from "@/components/layout/FloatingActions";
 import { siteConfig } from "@/config/site.config";
 import { useLanguage } from "@/context/LanguageContext";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 type ServicePageProps = {
   title: string;
@@ -30,8 +31,14 @@ export default function InnerPageTemplate({
   slug,
 }: ServicePageProps) {
   const { t } = useLanguage();
-  const whatsappUrl = `https://wa.me/${siteConfig.whatsappNumber}?text=${encodeURIComponent(
-    `Hello Nakshatra CCTV Services. I need details about ${title} in ${siteConfig.city}. Please share details.`
+  const { settings } = useSiteSettings();
+
+  const phone = settings.phone || siteConfig.phone;
+  const whatsappNumber = settings.whatsappNumber || siteConfig.whatsappNumber;
+  const city = settings.city || siteConfig.city;
+
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+    `Hello Nakshatra CCTV Services. I need details about ${title} in ${city}. Please share details.`
   )}`;
 
   const breadcrumbJsonLd = {
@@ -62,11 +69,11 @@ export default function InnerPageTemplate({
       "name": siteConfig.name,
       "address": {
         "@type": "PostalAddress",
-        "addressLocality": siteConfig.city,
+        "addressLocality": city,
         "addressCountry": "IN"
       }
     },
-    "areaServed": siteConfig.city,
+    "areaServed": city,
     "description": description
   };
 
@@ -98,7 +105,7 @@ export default function InnerPageTemplate({
                 ✦ Professional Security Service ✦
               </span>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-text-primary tracking-tight leading-tight">
-                {title} in <span className="text-accent">{siteConfig.city}</span>
+                {title} in <span className="text-accent">{city}</span>
               </h1>
               <p className="text-base sm:text-lg text-text-secondary leading-relaxed font-sans">
                 {subtitle}
@@ -161,7 +168,7 @@ export default function InnerPageTemplate({
                     Book Service Today
                   </h3>
                   <p className="text-xs text-text-secondary">
-                    Connect directly with our senior security technicians in {siteConfig.city}.
+                    Connect directly with our senior security technicians in {city}.
                   </p>
                 </div>
 
@@ -176,11 +183,11 @@ export default function InnerPageTemplate({
 
                 <div className="pt-2 space-y-3">
                   <a
-                    href={`tel:${siteConfig.phone}`}
+                    href={`tel:${phone}`}
                     className="w-full flex items-center justify-center gap-2 py-3 rounded-full border border-border-custom text-text-primary font-bold text-xs hover:bg-bg-secondary transition-all"
                   >
                     <Phone className="h-4 w-4 text-accent" />
-                    <span>Call {siteConfig.phone}</span>
+                    <span>Call {phone}</span>
                   </a>
                   <a
                     href={whatsappUrl}

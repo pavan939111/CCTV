@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import InnerPageTemplate from "@/components/ui/InnerPageTemplate";
 
 export const metadata: Metadata = {
-  title: "CCTV Repair & Maintenance Services in Hyderabad | Nakshatra CCTV",
-  description: "Fast same-day CCTV camera repair, DVR power supply fix, BNC cable troubleshooting, and lens replacement in Hyderabad.",
+  title: "CCTV Repair & Maintenance Services in Nalgonda & Suryapet | Nakshatra CCTV",
+  description: "Fast same-day CCTV camera repair, DVR power supply fix, BNC cable troubleshooting, and lens replacement in Nalgonda & Suryapet.",
 };
 
 export default function CCTVRepairPage() {
@@ -11,7 +11,7 @@ export default function CCTVRepairPage() {
     <InnerPageTemplate
       title="CCTV Repair & Maintenance"
       subtitle="Rapid diagnostic and same-day repair for non-functional cameras, lost video signals, burnt SMPS units, and corrupted hard disks."
-      description="Is your CCTV system showing 'No Signal', black screens, or failed night vision? Nakshatra CCTV Services provides fast, reliable CCTV repair across Hyderabad for all major brands including CP Plus, Hikvision, Dahua, UNV, and Honeywell."
+      description="Is your CCTV system showing 'No Signal', black screens, or failed night vision? Nakshatra CCTV Services provides fast, reliable CCTV repair across Nalgonda & Suryapet for all major brands including CP Plus, Hikvision, Dahua, UNV, and Honeywell."
       highlights={[
         "Same-Day Repair Visit",
         "SMPS Power Supply Replacement",

@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import InnerPageTemplate from "@/components/ui/InnerPageTemplate";
 
 export const metadata: Metadata = {
-  title: "CCTV Annual Maintenance Contract (AMC) in Hyderabad | Nakshatra CCTV",
+  title: "CCTV Annual Maintenance Contract (AMC) in Nalgonda & Suryapet | Nakshatra CCTV",
   description: "Comprehensive CCTV AMC contracts for offices, apartments, factories, and schools. Monthly preventive maintenance & 24/7 breakdown support.",
 };
 

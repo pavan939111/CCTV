@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import InnerPageTemplate from "@/components/ui/InnerPageTemplate";
 
 export const metadata: Metadata = {
-  title: "Access Control System Installation in Hyderabad | Nakshatra CCTV",
-  description: "RFID card, PIN keypads, and electromagnetic lock access control installation for offices & server rooms in Hyderabad.",
+  title: "Access Control System Installation in Nalgonda & Suryapet | Nakshatra CCTV",
+  description: "RFID card, PIN keypads, and electromagnetic lock access control installation for offices & server rooms in Nalgonda & Suryapet.",
 };
 
 export default function AccessControlPage() {

@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import InnerPageTemplate from "@/components/ui/InnerPageTemplate";
 
 export const metadata: Metadata = {
-  title: "Video Door Phone Installation in Hyderabad | Nakshatra CCTV",
-  description: "Smart video door phones with HD outdoor camera, indoor display, smartphone remote unlock & night vision in Hyderabad.",
+  title: "Video Door Phone Installation in Nalgonda & Suryapet | Nakshatra CCTV",
+  description: "Smart video door phones with HD outdoor camera, indoor display, smartphone remote unlock & night vision in Nalgonda & Suryapet.",
 };
 
 export default function VideoDoorPhonePage() {

@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import InnerPageTemplate from "@/components/ui/InnerPageTemplate";
 
 export const metadata: Metadata = {
-  title: "Wireless CCTV Camera Installation in Hyderabad | Nakshatra CCTV",
+  title: "Wireless CCTV Camera Installation in Nalgonda & Suryapet | Nakshatra CCTV",
   description: "Wire-free WiFi camera setup for homes, apartments, and shops. 360° pan-tilt motion tracking & cloud storage.",
 };
 

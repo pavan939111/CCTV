@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import InnerPageTemplate from "@/components/ui/InnerPageTemplate";
 
 export const metadata: Metadata = {
-  title: "IP Camera & NVR System Installation in Hyderabad | Nakshatra CCTV",
-  description: "High-definition IP network camera installation with Power-over-Ethernet (PoE) & NVR storage in Hyderabad.",
+  title: "IP Camera & NVR System Installation in Nalgonda & Suryapet | Nakshatra CCTV",
+  description: "High-definition IP network camera installation with Power-over-Ethernet (PoE) & NVR storage in Nalgonda & Suryapet.",
 };
 
 export default function IPCameraPage() {

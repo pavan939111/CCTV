@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import InnerPageTemplate from "@/components/ui/InnerPageTemplate";
 
 export const metadata: Metadata = {
-  title: "Biometric Attendance System Installation in Hyderabad | Nakshatra CCTV",
-  description: "Fingerprint & AI Face Recognition attendance machines with automated payroll software integration in Hyderabad.",
+  title: "Biometric Attendance System Installation in Nalgonda & Suryapet | Nakshatra CCTV",
+  description: "Fingerprint & AI Face Recognition attendance machines with automated payroll software integration in Nalgonda & Suryapet.",
 };
 
 export default function BiometricAttendancePage() {

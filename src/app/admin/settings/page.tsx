@@ -147,7 +147,7 @@ export default function SettingsDashboard() {
                   required
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  placeholder="e.g. Hyderabad"
+                  placeholder="e.g. Nalgonda"
                   className="w-full px-4 py-2.5 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
                 />
               </div>
