@@ -86,7 +86,7 @@ export default function Navbar() {
                 className="text-xs font-semibold uppercase tracking-wider text-text-secondary hover:text-accent transition-colors duration-300 flex items-center gap-1.5 mr-2"
               >
                 <Lock className="h-3.5 w-3.5 text-accent" />
-                <span>Admin</span>
+                <span>Login</span>
               </Link>
 
               {/* Call Hotline */}
@@ -114,13 +114,6 @@ export default function Navbar() {
 
             {/* Mobile Navigation controls */}
             <div className="flex lg:hidden items-center gap-2">
-              <Link
-                href="/admin"
-                className="p-1.5 text-text-secondary hover:text-accent transition-colors duration-300"
-                aria-label="Admin Portal"
-              >
-                <Lock className="h-4.5 w-4.5 text-accent" />
-              </Link>
               <LanguageToggle />
               <ThemeToggle />
               <button
@@ -160,6 +153,16 @@ export default function Navbar() {
                   {link.name}
                 </Link>
               ))}
+              
+              {/* Login Link inside Mobile Side Drawer Menu */}
+              <Link
+                href="/admin"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-sm font-bold uppercase tracking-wider text-accent transition-colors duration-300 flex items-center gap-2 mt-2 pt-4 border-t border-border-custom"
+              >
+                <Lock className="h-4 w-4" />
+                <span>Login</span>
+              </Link>
             </div>
           </div>
           <div className="space-y-4 mb-16">
