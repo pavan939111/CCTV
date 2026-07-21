@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, Phone, Shield } from "lucide-react";
+import { Menu, X, Phone, Shield, Lock } from "lucide-react";
 import ThemeToggle from "./ui/ThemeToggle";
 import LanguageToggle from "./ui/LanguageToggle";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
@@ -81,6 +81,14 @@ export default function Navbar() {
               <LanguageToggle />
               <ThemeToggle />
 
+              <Link
+                href="/admin"
+                className="text-xs font-semibold uppercase tracking-wider text-text-secondary hover:text-accent transition-colors duration-300 flex items-center gap-1.5 mr-2"
+              >
+                <Lock className="h-3.5 w-3.5 text-accent" />
+                <span>Admin</span>
+              </Link>
+
               {/* Call Hotline */}
               <a
                 href={`tel:${settings.phone}`}
@@ -106,6 +114,13 @@ export default function Navbar() {
 
             {/* Mobile Navigation controls */}
             <div className="flex lg:hidden items-center gap-2">
+              <Link
+                href="/admin"
+                className="p-1.5 text-text-secondary hover:text-accent transition-colors duration-300"
+                aria-label="Admin Portal"
+              >
+                <Lock className="h-4.5 w-4.5 text-accent" />
+              </Link>
               <LanguageToggle />
               <ThemeToggle />
               <button
