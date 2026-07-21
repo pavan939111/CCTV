@@ -7,6 +7,8 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Plus, Trash2, Check, X, Star, Camera, HardDrive } from "lucide-react";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage } from "@/lib/firebase";
 
 type FAQ = {
   id: string;
@@ -640,8 +642,10 @@ export default function CmsDashboard() {
                   value={galImage}
                   onChange={(e) => setGalImage(e.target.value)}
                   placeholder="e.g. /images/cctv-lobby.png"
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent font-sans"
                 />
+                <span className="block text-[9px] text-[#94A3B8] font-bold uppercase tracking-wider">Or upload file directly:</span>
+                <ImageUploader onUploadComplete={(url) => setGalImage(url)} folder="gallery" />
               </div>
 
               <div className="space-y-1.5">
@@ -773,8 +777,10 @@ export default function CmsDashboard() {
                   value={prodImage}
                   onChange={(e) => setProdImage(e.target.value)}
                   placeholder="e.g. /images/dome-camera.png"
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent font-sans"
                 />
+                <span className="block text-[9px] text-[#94A3B8] font-bold uppercase tracking-wider">Or upload file directly:</span>
+                <ImageUploader onUploadComplete={(url) => setProdImage(url)} folder="products" />
               </div>
 
               <div className="space-y-1.5">
@@ -866,6 +872,86 @@ export default function CmsDashboard() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* Image File Uploader Component using Firebase Storage */
+function ImageUploader({ 
+  onUploadComplete, 
+  folder = "uploads" 
+}: { 
+  onUploadComplete: (url: string) => void;
+  folder?: string;
+}) {
+  const [file, setFile] = useState<File | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleUpload = () => {
+    if (!file) return;
+    setUploading(true);
+    setError("");
+    setProgress(0);
+
+    const storageRef = ref(storage, `${folder}/${Date.now()}_${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const percent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+        setProgress(percent);
+      },
+      (err) => {
+        console.error("Upload error:", err);
+        setError("Upload failed. Verify storage bucket permissions in Firebase console.");
+        setUploading(false);
+      },
+      async () => {
+        try {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          onUploadComplete(downloadURL);
+          setUploading(false);
+          setFile(null);
+          setProgress(0);
+        } catch (e) {
+          setError("Failed to retrieve image URL.");
+          setUploading(false);
+        }
+      }
+    );
+  };
+
+  return (
+    <div className="space-y-2 border border-white/10 p-3 rounded bg-[#0B1220] text-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 justify-between">
+        <input 
+          type="file" 
+          accept="image/*"
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          className="text-[10px] text-[#94A3B8] file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20 cursor-pointer max-w-full"
+        />
+        {file && !uploading && (
+          <button 
+            type="button" 
+            onClick={handleUpload}
+            className="px-3 py-1 bg-accent hover:bg-accent-glow text-white text-[10px] rounded font-bold cursor-pointer transition shrink-0"
+          >
+            Upload
+          </button>
+        )}
+      </div>
+      {uploading && (
+        <div className="space-y-1">
+          <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+            <div className="bg-accent h-full transition-all duration-300" style={{ width: `${progress}%` }} />
+          </div>
+          <span className="text-[9px] text-[#94A3B8] block">Uploading: {progress}%</span>
+        </div>
+      )}
+      {error && <span className="text-[10px] text-red-400 block">{error}</span>}
     </div>
   );
 }
