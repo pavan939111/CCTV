@@ -2,31 +2,31 @@
 
 /* Design System Tokens */
 :root {
-  /* Default: Dark Theme */
-  --bg-primary: #050814;
-  --bg-secondary: #0B1220;
-  --bg-card: rgba(255, 255, 255, 0.03);
+  /* Default: Dark Blue Theme */
+  --bg-primary: #070D19;
+  --bg-secondary: #0B1D3A;
+  --bg-card: rgba(11, 29, 58, 0.45);
   --text-primary: #FFFFFF;
   --text-secondary: #94A3B8;
   --accent: #2E7CF6;
   --accent-glow: #00A8FF;
   --success: #25D366;
-  --border: rgba(255, 255, 255, 0.08);
-  --shadow: 0 0 40px rgba(46, 124, 246, 0.12);
+  --border: rgba(46, 124, 246, 0.15);
+  --shadow: 0 0 40px rgba(46, 124, 246, 0.18);
 }
 
 /* Light Theme overrides using the .light class */
 :root.light {
-  --bg-primary: #FFFFFF;
-  --bg-secondary: #F5F7FA;
-  --bg-card: rgba(11, 29, 58, 0.04);
-  --text-primary: #0A0A0A;
-  --text-secondary: #475569;
+  --bg-primary: #EEF4FA;
+  --bg-secondary: #E2ECF6;
+  --bg-card: rgba(255, 255, 255, 0.65);
+  --text-primary: #0B1D3A;
+  --text-secondary: #334155;
   --accent: #1D5FD1;
   --accent-glow: #2E7CF6;
   --success: #1DA851;
-  --border: rgba(11, 29, 58, 0.12);
-  --shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  --border: rgba(29, 95, 209, 0.12);
+  --shadow: 0 8px 30px rgba(29, 95, 209, 0.06);
 }
 
 @theme {
@@ -72,6 +72,17 @@ body {
 .glass-card:hover {
   border-color: rgba(46, 124, 246, 0.4);
   box-shadow: 0 0 20px rgba(46, 124, 246, 0.15);
+}
+
+:root.light .glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(11, 29, 58, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+}
+
+:root.light .glass-card:hover {
+  border-color: rgba(29, 95, 209, 0.3);
+  box-shadow: 0 0 20px rgba(29, 95, 209, 0.1);
 }
 
 /* Surveillance Dashboard Grid System */
@@ -150,6 +161,14 @@ body {
   );
   z-index: 0;
   pointer-events: none;
+}
+
+:root.light .glow-card::before {
+  background: radial-gradient(
+    600px circle at var(--mouse-x, 0px) var(--mouse-y, 0px),
+    rgba(29, 95, 209, 0.04),
+    transparent 40%
+  );
 }
 
 /* Custom scrollbar */

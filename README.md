@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Nakshatra CCTV Services Website
 
-## Getting Started
+A lead-generation, high-performance web application built for **Nakshatra CCTV Services** using Next.js 15 (App Router), TypeScript, Tailwind CSS, Three.js / React Three Fiber, Framer Motion, and Firebase.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Getting Started
+
+1. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
+
+2. **Development Server**:
+   ```bash
+   npm run dev
+   ```
+   Open `http://localhost:3000` in your browser.
+
+3. **Production Build**:
+   ```bash
+   npm run build
+   ```
+
+---
+
+## 🔒 Firebase Security Rules Setup
+
+To fix the `FirebaseError: Missing or insufficient permissions` console warning when fetching Firestore collections, copy and paste the following rules into your **Firebase Console → Firestore Database → Rules** tab:
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Allow public read of site settings & published content
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /testimonials/{docId} {
+      allow read: if resource.data.status == 'approved';
+      allow create: if request.resource.data.name != null;
+      allow update, delete: if request.auth != null;
+    }
+
+    match /services/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /products/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /faqs/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Public lead submission
+    match /leads/{docId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+  }
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠 Features & Configuration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Single Configuration**: Placeholders are managed in `src/config/site.config.ts`.
+- **Dual Themes**: Automatic system preference detection with persistent toggle and no-flash blocking script.
+- **WhatsApp Integration**: Deep-linked pre-filled messages on all service/product CTAs.
+- **Admin CRM**: Located at `/admin` (protected by Firebase Authentication).

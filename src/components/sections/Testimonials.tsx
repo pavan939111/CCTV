@@ -92,7 +92,7 @@ export default function Testimonials() {
   const current = testimonials[currentIndex];
 
   return (
-    <section className="w-full py-20 bg-bg-secondary/20 border-t border-border-custom/30 overflow-hidden relative">
+    <section className="w-full py-20 bg-bg-primary border-t border-border-custom/30 overflow-hidden relative">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Heading */}

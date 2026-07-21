@@ -6,8 +6,8 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Phone, Mail, MapPin, Clock, Send, MessageCircle } from "lucide-react";
 import { siteConfig } from "@/config/site.config";
+import { useLanguage } from "@/context/LanguageContext";
 
-// Dynamically load Map client-side to prevent Leaflet SSR errors
 const OsmMap = dynamic(() => import("../ui/OsmMap"), {
   ssr: false,
   loading: () => (
@@ -18,6 +18,7 @@ const OsmMap = dynamic(() => import("../ui/OsmMap"), {
 });
 
 export default function Contact() {
+  const { t } = useLanguage();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -43,33 +44,14 @@ export default function Contact() {
       cameras,
       message: message || "N/A",
       timestamp: serverTimestamp(),
-      status: "New", // Pipeline status: New -> Contacted -> Closed
+      status: "New",
     };
 
     try {
-      // 1. Save to Firestore
       await addDoc(collection(db, "leads"), leadData);
-      
-      // 2. Prepare data for WhatsApp redirection
-      setFormDataForWa({
-        name,
-        phone,
-        address,
-        service,
-        cameras,
-        message,
-      });
-
+      setFormDataForWa({ name, phone, address, service, cameras, message });
       setSuccess(true);
-      
-      // Clear form
-      setName("");
-      setPhone("");
-      setEmail("");
-      setAddress("");
-      setService("CCTV Installation");
-      setCameras("1-4");
-      setMessage("");
+      setName(""); setPhone(""); setEmail(""); setAddress(""); setService("CCTV Installation"); setCameras("1-4"); setMessage("");
     } catch (err) {
       console.error("Failed to submit lead to Firestore:", err);
       alert("Inquiry submission failed. You can still message us directly on WhatsApp using the button.");
@@ -78,7 +60,6 @@ export default function Contact() {
     }
   };
 
-  // Compile pre-filled WhatsApp link
   const getWaRedirectUrl = () => {
     if (!formDataForWa) return "#";
     const text = `Hello Nakshatra CCTV Services.
@@ -94,31 +75,33 @@ Please contact me.`;
   };
 
   return (
-    <section id="contact" className="w-full py-20 bg-bg-primary overflow-hidden">
+    <section id="contact" className="w-full py-20 bg-bg-primary overflow-hidden border-b border-border-custom">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Heading */}
         <div className="text-center space-y-4 mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold font-heading text-text-primary">
-            Request a <span className="text-accent">Free Survey</span>
+          <span className="text-[11px] font-bold uppercase tracking-widest text-accent font-mono bg-accent/10 border border-accent/20 px-3 py-1 rounded-full">
+            ✦ FREE SITE INSPECTION ✦
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-text-primary">
+            {t.contactHeading}
           </h2>
           <p className="text-sm sm:text-base text-text-secondary max-w-[60ch] mx-auto leading-relaxed">
-            Fill out the form below to book a site visit. We will call you back within 1 hour to schedule a survey.
+            {t.contactSub}
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Left Column: Form Card */}
           <div className="lg:col-span-7">
-            <div className="glass-card p-6 sm:p-8 bg-bg-secondary/15 relative">
+            <div className="glass-card p-6 sm:p-8 bg-bg-card relative border border-border-custom rounded-2xl">
               
               {!success ? (
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {/* Name */}
                     <div className="space-y-2">
                       <label htmlFor="form-name" className="text-xs font-bold uppercase tracking-wider text-text-secondary">
-                        Your Name *
+                        {t.nameLabel} *
                       </label>
                       <input
                         type="text"
@@ -131,10 +114,9 @@ Please contact me.`;
                       />
                     </div>
 
-                    {/* Phone */}
                     <div className="space-y-2">
                       <label htmlFor="form-phone" className="text-xs font-bold uppercase tracking-wider text-text-secondary">
-                        Phone Number *
+                        {t.phoneLabel} *
                       </label>
                       <input
                         type="tel"
@@ -149,7 +131,6 @@ Please contact me.`;
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {/* Email */}
                     <div className="space-y-2">
                       <label htmlFor="form-email" className="text-xs font-bold uppercase tracking-wider text-text-secondary">
                         Email Address (Optional)
@@ -164,10 +145,9 @@ Please contact me.`;
                       />
                     </div>
 
-                    {/* Address / City */}
                     <div className="space-y-2">
                       <label htmlFor="form-address" className="text-xs font-bold uppercase tracking-wider text-text-secondary">
-                        Address / City Area *
+                        {t.localityLabel} *
                       </label>
                       <input
                         type="text"
@@ -182,10 +162,9 @@ Please contact me.`;
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {/* Service Required */}
                     <div className="space-y-2">
                       <label htmlFor="form-service" className="text-xs font-bold uppercase tracking-wider text-text-secondary">
-                        Service Required *
+                        {t.serviceLabel} *
                       </label>
                       <select
                         id="form-service"
@@ -201,10 +180,9 @@ Please contact me.`;
                       </select>
                     </div>
 
-                    {/* Number of Cameras */}
                     <div className="space-y-2">
                       <label htmlFor="form-cameras" className="text-xs font-bold uppercase tracking-wider text-text-secondary">
-                        No. of Cameras Needed
+                        {t.camerasLabel}
                       </label>
                       <select
                         id="form-cameras"
@@ -220,33 +198,31 @@ Please contact me.`;
                     </div>
                   </div>
 
-                  {/* Requirements Message */}
                   <div className="space-y-2">
                     <label htmlFor="form-message" className="text-xs font-bold uppercase tracking-wider text-text-secondary">
-                      Additional Requirements (Optional)
+                      {t.messageLabel}
                     </label>
                     <textarea
                       id="form-message"
                       rows={4}
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Share details about the property, recording backup days needed, or specific requests..."
+                      placeholder="Share details about the property..."
                       className="w-full px-4 py-3 rounded-xl bg-bg-primary border border-border-custom text-text-primary focus:outline-none focus:border-accent text-sm resize-none"
                     />
                   </div>
 
-                  {/* Submit Button */}
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3.5 rounded-full bg-accent hover:bg-accent-glow text-white font-semibold flex items-center justify-center gap-2 shadow-custom transition-all duration-300 active:scale-95 disabled:opacity-75 disabled:pointer-events-none"
+                    className="w-full py-3.5 rounded-full bg-accent hover:bg-accent/90 text-white font-semibold flex items-center justify-center gap-2 shadow-custom transition-all duration-300 active:scale-95 disabled:opacity-75 disabled:pointer-events-none"
                   >
                     {loading ? (
                       <span>Submitting Form...</span>
                     ) : (
                       <>
                         <Send className="h-4.5 w-4.5" />
-                        <span>Book Free Site Visit</span>
+                        <span>{t.submitBtn}</span>
                       </>
                     )}
                   </button>
@@ -260,7 +236,7 @@ Please contact me.`;
                     Inquiry Submitted Successfully!
                   </h3>
                   <p className="text-sm text-text-secondary leading-relaxed max-w-[40ch]">
-                    Your request is securely stored in our CRM. To bypass phone queues and schedule your survey immediately, click the button below to send details via WhatsApp.
+                    Your request is securely stored. Click below to continue on WhatsApp.
                   </p>
                   
                   <div className="pt-4 flex flex-col sm:flex-row gap-4 w-full justify-center">
@@ -269,18 +245,10 @@ Please contact me.`;
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-success-whatsapp text-white font-bold transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg"
-                      style={{ backgroundColor: "var(--success)" }}
                     >
                       <MessageCircle className="h-5 w-5" />
-                      <span>Continue on WhatsApp</span>
+                      <span>{t.chatOnWhatsapp}</span>
                     </a>
-                    
-                    <button
-                      onClick={() => setSuccess(false)}
-                      className="px-8 py-3.5 rounded-full border border-border-custom hover:bg-bg-secondary text-text-secondary font-semibold transition-all duration-300"
-                    >
-                      Fill Another Form
-                    </button>
                   </div>
                 </div>
               )}
@@ -290,8 +258,8 @@ Please contact me.`;
 
           {/* Right Column: Contact Info Card & Map */}
           <div className="lg:col-span-5 space-y-8">
-            <div className="glass-card p-6 bg-bg-secondary/15 space-y-6">
-              <h3 className="text-lg font-bold text-text-primary font-heading border-b border-border-custom/40 pb-3">
+            <div className="glass-card p-6 bg-bg-card space-y-6 rounded-2xl border border-border-custom">
+              <h3 className="text-lg font-bold text-text-primary font-heading border-b border-border-custom pb-3">
                 Business Information
               </h3>
               
@@ -334,7 +302,6 @@ Please contact me.`;
               </div>
             </div>
 
-            {/* Map wrapper */}
             <div className="space-y-4">
               <OsmMap />
               <div className="flex gap-4">

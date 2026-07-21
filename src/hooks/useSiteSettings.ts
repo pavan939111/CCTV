@@ -15,6 +15,9 @@ export type SiteSettings = {
   responseTime: string;
   supportAvailability: string;
   gstNumber: string;
+  workingHours: string;
+  serviceAreas: string[];
+  googleMapsLink: string;
 };
 
 const defaultSettings: SiteSettings = {
@@ -27,6 +30,9 @@ const defaultSettings: SiteSettings = {
   responseTime: siteConfig.responseTime,
   supportAvailability: siteConfig.supportAvailability,
   gstNumber: siteConfig.gstNumber || "",
+  workingHours: siteConfig.workingHours,
+  serviceAreas: siteConfig.serviceAreas,
+  googleMapsLink: siteConfig.googleMapsLink,
 };
 
 export function useSiteSettings() {
@@ -50,6 +56,9 @@ export function useSiteSettings() {
           responseTime: data.responseTime || defaultSettings.responseTime,
           supportAvailability: data.supportAvailability || defaultSettings.supportAvailability,
           gstNumber: data.gstNumber || defaultSettings.gstNumber,
+          workingHours: data.workingHours || defaultSettings.workingHours,
+          serviceAreas: data.serviceAreas || defaultSettings.serviceAreas,
+          googleMapsLink: data.googleMapsLink || defaultSettings.googleMapsLink,
         });
       }
       setLoading(false);

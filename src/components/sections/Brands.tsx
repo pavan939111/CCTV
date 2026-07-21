@@ -1,5 +1,7 @@
 "use client";
 
+import { useLanguage } from "@/context/LanguageContext";
+
 const brands = [
   "CP Plus",
   "Hikvision",
@@ -14,24 +16,21 @@ const brands = [
 ];
 
 export default function Brands() {
-  // Duplicate list to ensure infinite loops
+  const { t } = useLanguage();
   const doubleBrands = [...brands, ...brands];
 
   return (
-    <section className="w-full py-10 bg-bg-primary overflow-hidden border-b border-border-custom/30 select-none">
+    <section className="w-full py-10 bg-bg-primary overflow-hidden border-b border-border-custom select-none">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-6">
         <p className="text-center text-xs font-bold tracking-widest text-text-secondary uppercase">
-          Certified Partner & Dealership Brands
+          {t.brandsHeading}
         </p>
       </div>
 
-      {/* Scrolling Marquee Container */}
       <div className="relative w-full flex items-center overflow-hidden py-4">
-        {/* Left & Right Glass Gradients for Soft Fades */}
         <div className="absolute left-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-r from-bg-primary to-transparent z-10 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-bg-primary to-transparent z-10 pointer-events-none" />
 
-        {/* Scrolling flex track */}
         <div 
           className="flex gap-12 whitespace-nowrap min-w-full justify-around animate-marquee hover:[animation-play-state:paused]"
           style={{
@@ -49,7 +48,6 @@ export default function Brands() {
           ))}
         </div>
 
-        {/* Global stylesheet insertion for the marquee keyframes key */}
         <style jsx global>{`
           @keyframes marquee {
             0% {

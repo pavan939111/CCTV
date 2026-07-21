@@ -2,23 +2,26 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X, Phone, Shield } from "lucide-react";
 import ThemeToggle from "./ui/ThemeToggle";
+import LanguageToggle from "./ui/LanguageToggle";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-
-const navLinks = [
-  { name: "Home", href: "#" },
-  { name: "Services", href: "#services" },
-  { name: "Products", href: "#services" },
-  { name: "Solutions", href: "#services" },
-  { name: "About Us", href: "#why-choose" },
-  { name: "Contact", href: "#contact" },
-];
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function Navbar() {
   const { settings } = useSiteSettings();
+  const { t } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const navLinks = [
+    { name: t.navHome, href: "/" },
+    { name: t.navServices, href: "/#services" },
+    { name: t.navProducts, href: "/products" },
+    { name: t.navWhyChoose, href: "/#why-choose" },
+    { name: t.navContact, href: "/contact" },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,7 +36,7 @@ export default function Navbar() {
       <nav
         className={`sticky top-0 z-[100] w-full transition-all duration-300 ${
           isScrolled
-            ? "bg-bg-primary/80 backdrop-blur-md border-b border-white/10 py-3"
+            ? "bg-bg-primary/80 backdrop-blur-md border-b border-border-custom py-3"
             : "bg-transparent py-5"
         }`}
       >
@@ -42,15 +45,20 @@ export default function Navbar() {
             
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group shrink-0">
-              <div className="relative h-10 w-10 shrink-0 flex items-center justify-center bg-accent/10 border border-accent/30 rounded-xl group-hover:scale-105 transition-transform duration-300 shadow-[0_0_15px_rgba(46,124,246,0.15)]">
-                <Shield className="h-5 w-5 text-accent" />
+              <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl group-hover:scale-105 transition-transform duration-300 shadow-[0_0_15px_rgba(46,124,246,0.25)] border border-accent/40">
+                <Image
+                  src="/images/nakshatra-logo.png"
+                  alt="Nakshatra CCTV Services Logo"
+                  fill
+                  className="object-cover"
+                />
               </div>
               <div className="flex flex-col">
                 <span className="text-sm font-black tracking-wider font-heading text-text-primary leading-none uppercase">
-                  NAKSHATRA
+                  {t.brandName}
                 </span>
                 <span className="text-[9px] font-bold text-accent tracking-widest mt-0.5 uppercase leading-none">
-                  CCTV SERVICES
+                  {t.brandSub}
                 </span>
               </div>
             </Link>
@@ -69,19 +77,20 @@ export default function Navbar() {
             </div>
 
             {/* Navbar Actions (Right Side) */}
-            <div className="hidden lg:flex items-center gap-5 xl:gap-6 shrink-0">
+            <div className="hidden lg:flex items-center gap-4 xl:gap-5 shrink-0">
+              <LanguageToggle />
               <ThemeToggle />
 
               {/* Call Hotline */}
               <a
                 href={`tel:${settings.phone}`}
-                className="flex items-center gap-2.5 text-xs text-text-primary font-bold hover:text-accent transition-colors duration-300 font-heading"
+                className="flex items-center gap-2 text-xs text-text-primary font-bold hover:text-accent transition-colors duration-300 font-heading"
               >
                 <div className="p-2 rounded-full bg-accent/10 border border-accent/20">
                   <Phone className="h-4 w-4 text-accent" />
                 </div>
                 <div>
-                  <span className="block text-[9px] text-text-secondary uppercase font-semibold leading-none">Call Us Anytime</span>
+                  <span className="block text-[9px] text-text-secondary uppercase font-semibold leading-none">{t.callUsAnytime}</span>
                   <span className="block text-xs mt-1 leading-none">{settings.phone}</span>
                 </div>
               </a>
@@ -89,14 +98,15 @@ export default function Navbar() {
               {/* Get Free Site Visit CTA */}
               <Link
                 href="#contact"
-                className="px-6 py-3 rounded-lg text-xs font-bold font-heading bg-accent text-white hover:bg-accent-glow shadow-custom transition-all duration-300 active:scale-95 uppercase tracking-wider"
+                className="px-5 py-2.5 rounded-full text-xs font-bold font-heading bg-accent text-white hover:bg-accent/90 shadow-custom transition-all duration-300 active:scale-95 uppercase tracking-wider"
               >
-                Get Free Site Visit
+                {t.getFreeSiteVisit}
               </Link>
             </div>
 
             {/* Mobile Navigation controls */}
-            <div className="flex lg:hidden items-center gap-3">
+            <div className="flex lg:hidden items-center gap-2">
+              <LanguageToggle />
               <ThemeToggle />
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

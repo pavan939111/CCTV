@@ -9,7 +9,7 @@ export default function CctvModel() {
   const beamRef = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
-    const elapsed = state.clock.getElapsedTime();
+    const elapsed = state.clock.elapsedTime;
 
     if (groupRef.current) {
       // Slow rotation: 0.15 rad/s

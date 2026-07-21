@@ -21,7 +21,7 @@ export const siteConfig = {
   ], // PLACEHOLDER
   latitude: 17.4435, // PLACEHOLDER
   longitude: 78.3822, // PLACEHOLDER
-  googleMapsLink: "https://maps.app.goo.gl/placeholder", // PLACEHOLDER
+  googleMapsLink: "https://maps.google.com/?q=Jubilee+Hills+Hyderabad+CCTV+Installation", // PLACEHOLDER
   workingHours: "9:00 AM - 8:00 PM, Monday - Saturday", // PLACEHOLDER
   gstNumber: "36XXXXX1234XXZX", // Optional PLACEHOLDER
   

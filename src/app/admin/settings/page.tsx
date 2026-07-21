@@ -18,6 +18,9 @@ export default function SettingsDashboard() {
   const [responseTime, setResponseTime] = useState("");
   const [supportAvailability, setSupportAvailability] = useState("");
   const [gstNumber, setGstNumber] = useState("");
+  const [workingHours, setWorkingHours] = useState("");
+  const [serviceAreasRaw, setServiceAreasRaw] = useState("");
+  const [googleMapsLink, setGoogleMapsLink] = useState("");
 
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -34,6 +37,9 @@ export default function SettingsDashboard() {
       setResponseTime(currentSettings.responseTime);
       setSupportAvailability(currentSettings.supportAvailability);
       setGstNumber(currentSettings.gstNumber);
+      setWorkingHours(currentSettings.workingHours || "");
+      setServiceAreasRaw((currentSettings.serviceAreas || []).join(", "));
+      setGoogleMapsLink(currentSettings.googleMapsLink || "");
     }
   }, [fetchLoading, currentSettings]);
 
@@ -52,6 +58,9 @@ export default function SettingsDashboard() {
       responseTime,
       supportAvailability,
       gstNumber,
+      workingHours,
+      serviceAreas: serviceAreasRaw.split(",").map((s) => s.trim()).filter(Boolean),
+      googleMapsLink,
     };
 
     try {
@@ -203,6 +212,45 @@ export default function SettingsDashboard() {
                   value={gstNumber}
                   onChange={(e) => setGstNumber(e.target.value)}
                   placeholder="e.g. 36AAAAA1111A1Z1"
+                  className="w-full px-4 py-2.5 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                />
+              </div>
+
+              {/* Working Hours */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Working Hours</label>
+                <input
+                  type="text"
+                  required
+                  value={workingHours}
+                  onChange={(e) => setWorkingHours(e.target.value)}
+                  placeholder="e.g. 9:00 AM - 8:00 PM, Monday - Saturday"
+                  className="w-full px-4 py-2.5 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                />
+              </div>
+
+              {/* Service Areas */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Service Areas (Comma separated)</label>
+                <input
+                  type="text"
+                  required
+                  value={serviceAreasRaw}
+                  onChange={(e) => setServiceAreasRaw(e.target.value)}
+                  placeholder="e.g. Madhapur, Gachibowli, Kondapur"
+                  className="w-full px-4 py-2.5 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                />
+              </div>
+
+              {/* Google Maps Link */}
+              <div className="sm:col-span-2 space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Google Maps Embed Link / Reference URL</label>
+                <input
+                  type="text"
+                  required
+                  value={googleMapsLink}
+                  onChange={(e) => setGoogleMapsLink(e.target.value)}
+                  placeholder="e.g. https://maps.app.goo.gl/..."
                   className="w-full px-4 py-2.5 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
                 />
               </div>

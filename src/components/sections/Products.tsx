@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Phone, MessageCircle, FileText } from "lucide-react";
 import { siteConfig } from "@/config/site.config";
+import { useLanguage } from "@/context/LanguageContext";
 
 type ProductItem = {
   name: string;
@@ -75,6 +76,8 @@ const productsData: ProductItem[] = [
 ];
 
 export default function Products() {
+  const { t } = useLanguage();
+
   const getWhatsappUrl = (productName: string) => {
     return `https://wa.me/${siteConfig.whatsappNumber}?text=${encodeURIComponent(
       `Hello. I am interested in the ${productName}. Please share the quotation.`
@@ -82,29 +85,31 @@ export default function Products() {
   };
 
   return (
-    <section id="products" className="w-full py-20 bg-bg-secondary border-y border-border-custom/50 overflow-hidden">
+    <section id="products" className="w-full py-20 bg-bg-secondary border-b border-border-custom overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Heading */}
-        <div className="text-center space-y-4 mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold font-heading text-text-primary">
-            Branded <span className="text-accent">Products</span> & Hardware
+        <div className="text-center space-y-3 mb-16">
+          <span className="text-[11px] font-bold uppercase tracking-widest text-accent font-mono bg-accent/10 border border-accent/20 px-3 py-1 rounded-full">
+            ✦ CERTIFIED HARDWARE ✦
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-text-primary tracking-tight">
+            {t.productsHeading}
           </h2>
-          <p className="text-sm sm:text-base text-text-secondary max-w-[60ch] mx-auto leading-relaxed">
-            We source certified, industry-leading security gear to ensure long-term durability. All devices carry standard manufacturer warranties.
+          <p className="text-sm text-text-secondary max-w-[60ch] mx-auto leading-relaxed">
+            {t.productsSub}
           </p>
         </div>
 
-        {/* Products Grid / Horizontal Scroll for Mobile */}
-        <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-x-auto md:overflow-x-visible pb-6 md:pb-0 snap-x snap-mandatory scrollbar-thin scrollbar-track-transparent">
+        {/* Products Grid */}
+        <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-x-auto md:overflow-x-visible pb-6 md:pb-0 snap-x snap-mandatory">
           {productsData.map((product) => (
             <div
               key={product.name}
-              className="flex-shrink-0 w-[290px] sm:w-[320px] md:w-auto snap-center glass-card p-5 flex flex-col justify-between hover:border-accent/30 hover:-translate-y-1 transition-all duration-300 bg-bg-primary/50"
+              className="flex-shrink-0 w-[290px] sm:w-[320px] md:w-auto snap-center glass-card p-5 flex flex-col justify-between hover:border-accent/40 hover:-translate-y-1 transition-all duration-300 bg-bg-card"
             >
-              {/* Product Card Header */}
               <div className="space-y-4">
-                <div className="relative w-full h-[180px] sm:h-[220px] rounded-xl overflow-hidden bg-bg-primary border border-border-custom/40 group">
+                <div className="relative w-full h-[180px] sm:h-[220px] rounded-xl overflow-hidden bg-bg-primary border border-border-custom group">
                   <Image
                     src={product.image}
                     alt={product.name}
@@ -112,16 +117,14 @@ export default function Products() {
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  {/* Subtle Accent Glow Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-bg-primary/30 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-bg-primary/40 to-transparent pointer-events-none" />
                 </div>
                 
-                <h3 className="text-base sm:text-lg font-bold text-text-primary tracking-wide leading-snug">
+                <h3 className="text-base sm:text-lg font-bold text-text-primary font-heading tracking-wide leading-snug">
                   {product.name}
                 </h3>
 
-                {/* Features */}
-                <ul className="space-y-2 text-xs sm:text-sm text-text-secondary">
+                <ul className="space-y-2 text-xs text-text-secondary">
                   {product.features.map((feature, idx) => (
                     <li key={idx} className="flex items-center gap-2">
                       <span className="h-1.5 w-1.5 rounded-full bg-accent" />
@@ -131,47 +134,40 @@ export default function Products() {
                 </ul>
               </div>
 
-              {/* Product Footer & Actions */}
-              <div className="mt-8 pt-4 border-t border-border-custom/50 space-y-4">
+              <div className="mt-8 pt-4 border-t border-border-custom space-y-4">
                 <div className="flex items-baseline justify-between">
-                  <span className="text-xs text-text-secondary font-medium">Starting at</span>
-                  <span className="text-lg sm:text-xl font-black text-text-primary font-heading">
+                  <span className="text-xs text-text-secondary font-medium">{t.startingAt}</span>
+                  <span className="text-lg sm:text-xl font-extrabold text-text-primary font-heading">
                     ₹{product.price}
                     <span className="text-xs text-text-secondary font-normal ml-0.5">*</span>
                   </span>
                 </div>
 
-                {/* CTA Buttons */}
                 <div className="flex gap-2 text-xs">
-                  {/* Call */}
                   <a
                     href={`tel:${siteConfig.phone}`}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full border border-border-custom hover:bg-bg-secondary text-text-primary font-semibold transition-all duration-300 active:scale-95"
-                    title="Call support"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full border border-border-custom hover:bg-bg-primary text-text-primary font-bold transition-all active:scale-95"
                   >
                     <Phone className="h-3.5 w-3.5 text-accent" />
-                    <span>Call</span>
+                    <span>{t.callBtn}</span>
                   </a>
 
-                  {/* WhatsApp */}
                   <a
                     href={getWhatsappUrl(product.name)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-success-whatsapp text-white font-semibold transition-all duration-300 active:scale-95"
-                    style={{ backgroundColor: "var(--success)" }}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-success-whatsapp text-white font-bold transition-all active:scale-95 hover:opacity-90"
                   >
                     <MessageCircle className="h-3.5 w-3.5" />
-                    <span>Inquiry</span>
+                    <span>{t.inquiryBtn}</span>
                   </a>
 
-                  {/* Get Quote */}
                   <a
                     href="#contact"
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-accent text-white font-semibold hover:bg-accent-glow transition-all duration-300 active:scale-95"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-accent text-white font-bold hover:bg-accent/90 transition-all active:scale-95"
                   >
                     <FileText className="h-3.5 w-3.5" />
-                    <span>Quote</span>
+                    <span>{t.quoteBtn}</span>
                   </a>
                 </div>
               </div>

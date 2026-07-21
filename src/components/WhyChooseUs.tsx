@@ -16,8 +16,8 @@ const benefitsList: BenefitItem[] = [
     icon: ShieldCheck,
   },
   {
-    title: "AI Powered Security",
-    desc: "Active human outline detection, perimeter breach analytics, and immediate push alarms.",
+    title: "HD Night-Vision Setup",
+    desc: "Infrared night vision, motion triggers, remote smartphone streaming, and immediate push alarms.",
     icon: Cpu,
   },
   {

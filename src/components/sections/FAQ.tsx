@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, HelpCircle } from "lucide-react";
 import { siteConfig } from "@/config/site.config";
+import { useLanguage } from "@/context/LanguageContext";
 
 type FAQItem = {
   question: string;
@@ -41,6 +42,7 @@ const faqData: FAQItem[] = [
 ];
 
 export default function FAQ() {
+  const { t } = useLanguage();
   const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   const toggleFAQ = (idx: number) => {
@@ -48,16 +50,19 @@ export default function FAQ() {
   };
 
   return (
-    <section id="faq" className="w-full py-20 bg-bg-primary overflow-hidden">
+    <section id="faq" className="w-full py-20 bg-bg-primary overflow-hidden border-b border-border-custom">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Heading */}
         <div className="text-center space-y-4 mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold font-heading text-text-primary">
-            Frequently Asked <span className="text-accent">Questions</span>
+          <span className="text-[11px] font-bold uppercase tracking-widest text-accent font-mono bg-accent/10 border border-accent/20 px-3 py-1 rounded-full">
+            ✦ FREQUENTLY ASKED QUESTIONS ✦
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-text-primary">
+            {t.faqHeading}
           </h2>
           <p className="text-sm sm:text-base text-text-secondary max-w-[60ch] mx-auto leading-relaxed">
-            Get clear, detailed answers regarding security camera installations, pricing plans, and warranties.
+            {t.faqSub}
           </p>
         </div>
 
@@ -68,12 +73,11 @@ export default function FAQ() {
             return (
               <div
                 key={idx}
-                className="glass-card overflow-hidden transition-all duration-300 hover:border-border-custom bg-bg-secondary/15"
+                className="glass-card overflow-hidden transition-all duration-300 bg-bg-card border border-border-custom rounded-xl"
               >
-                {/* Trigger Header */}
                 <button
                   onClick={() => toggleFAQ(idx)}
-                  className="w-full p-5 flex items-center justify-between text-left gap-4 transition-colors hover:bg-bg-secondary/20"
+                  className="w-full p-5 flex items-center justify-between text-left gap-4 transition-colors hover:bg-bg-secondary/40"
                   aria-expanded={isOpen}
                 >
                   <div className="flex items-center gap-3">
@@ -89,13 +93,12 @@ export default function FAQ() {
                   />
                 </button>
 
-                {/* Answer Content Panel */}
                 <div
                   className={`transition-all duration-300 ease-in-out ${
-                    isOpen ? "max-h-[300px] border-t border-border-custom/30" : "max-h-0"
+                    isOpen ? "max-h-[300px] border-t border-border-custom" : "max-h-0"
                   } overflow-hidden`}
                 >
-                  <div className="p-5 text-xs sm:text-sm text-text-secondary leading-relaxed bg-bg-primary/20">
+                  <div className="p-5 text-xs sm:text-sm text-text-secondary leading-relaxed bg-bg-primary/40">
                     {faq.answer}
                   </div>
                 </div>
