@@ -17,7 +17,8 @@ export const siteConfig = {
     "Miyapur",
     "Begumpet",
     "Secunderabad",
-    "Hitech City"
+    "Hitech City",
+    "Nalgonda"
   ], // PLACEHOLDER
   latitude: 17.4435, // PLACEHOLDER
   longitude: 78.3822, // PLACEHOLDER

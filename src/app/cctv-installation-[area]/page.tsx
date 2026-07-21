@@ -19,6 +19,7 @@ const areaMap: Record<string, string> = {
   "begumpet": "Begumpet",
   "secunderabad": "Secunderabad",
   "hitech-city": "Hitech City",
+  "nalgonda": "Nalgonda",
 };
 
 export async function generateStaticParams() {
