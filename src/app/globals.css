@@ -1,0 +1,168 @@
+@import "tailwindcss";
+
+/* Design System Tokens */
+:root {
+  /* Default: Dark Theme */
+  --bg-primary: #050814;
+  --bg-secondary: #0B1220;
+  --bg-card: rgba(255, 255, 255, 0.03);
+  --text-primary: #FFFFFF;
+  --text-secondary: #94A3B8;
+  --accent: #2E7CF6;
+  --accent-glow: #00A8FF;
+  --success: #25D366;
+  --border: rgba(255, 255, 255, 0.08);
+  --shadow: 0 0 40px rgba(46, 124, 246, 0.12);
+}
+
+/* Light Theme overrides using the .light class */
+:root.light {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F5F7FA;
+  --bg-card: rgba(11, 29, 58, 0.04);
+  --text-primary: #0A0A0A;
+  --text-secondary: #475569;
+  --accent: #1D5FD1;
+  --accent-glow: #2E7CF6;
+  --success: #1DA851;
+  --border: rgba(11, 29, 58, 0.12);
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+}
+
+@theme {
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-card: var(--bg-card);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-accent: var(--accent);
+  --color-accent-glow: var(--accent-glow);
+  --color-success-whatsapp: var(--success);
+  --color-border-custom: var(--border);
+  
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-space-grotesk);
+  
+  --shadow-custom: var(--shadow);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans), sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* Glassmorphism utility */
+.glass-card {
+  background: rgba(11, 18, 32, 0.55);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem; /* rounded-2xl */
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(46, 124, 246, 0.4);
+  box-shadow: 0 0 20px rgba(46, 124, 246, 0.15);
+}
+
+/* Surveillance Dashboard Grid System */
+.surveillance-grid {
+  background-size: 50px 50px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+}
+
+:root.light .surveillance-grid {
+  background-image: 
+    linear-gradient(to right, rgba(11, 29, 58, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(11, 29, 58, 0.015) 1px, transparent 1px);
+}
+
+/* Animated Space Starfield Backdrop */
+.space-starfield {
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.15) 1.5px, transparent 1.5px),
+    radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 200px 200px, 350px 350px;
+  background-position: 0 0, 40px 60px;
+  animation: starfield-scroll 120s linear infinite;
+}
+
+:root.light .space-starfield {
+  background-image: 
+    radial-gradient(rgba(11, 29, 58, 0.05) 1.5px, transparent 1.5px),
+    radial-gradient(rgba(11, 29, 58, 0.03) 1px, transparent 1px);
+}
+
+@keyframes starfield-scroll {
+  from {
+    background-position: 0 0, 40px 60px;
+  }
+  to {
+    background-position: 200px 200px, 390px 410px;
+  }
+}
+
+/* Scanline Sweep Animation */
+@keyframes scanline-sweep {
+  0% {
+    top: -5%;
+  }
+  100% {
+    top: 105%;
+  }
+}
+
+.animate-scanline {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: scanline-sweep 8s linear infinite;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.glow-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    600px circle at var(--mouse-x, 0px) var(--mouse-y, 0px),
+    rgba(46, 124, 246, 0.06),
+    transparent 40%
+  );
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-secondary);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
