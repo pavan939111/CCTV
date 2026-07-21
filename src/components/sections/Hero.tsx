@@ -27,7 +27,7 @@ export default function HeroSection() {
         {/* Soft Legibility Gradient Overlay (subtle in light mode, deep in dark mode) */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-bg-primary/40 to-bg-primary/80 dark:via-bg-primary/70 dark:to-bg-primary/95" />
         <div className="absolute inset-0 bg-gradient-to-b from-bg-primary/20 via-transparent to-bg-primary/60 dark:from-bg-primary/40 dark:to-bg-primary/80" />
-        <div className="absolute top-1/2 right-1/4 translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[140px]" />
+        <div className="hidden lg:block absolute top-1/2 right-1/4 translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[140px]" />
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10 w-full">

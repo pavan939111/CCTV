@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
-import { Phone, MessageCircle, FileText } from "lucide-react";
+import { Phone, MessageCircle, FileText, ChevronUp, ChevronDown, CheckCircle2 } from "lucide-react";
 import { siteConfig } from "@/config/site.config";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -9,6 +10,7 @@ type ProductItem = {
   name: string;
   image: string;
   price: string;
+  description: string;
   features: string[];
 };
 
@@ -17,6 +19,7 @@ const productsData: ProductItem[] = [
     name: "Premium 4K IP Bullet Camera",
     image: "/images/ip-camera.png",
     price: "3,499",
+    description: "Enterprise-grade weatherproof bullet security camera featuring ultra-sharp 4K monitoring. Ideal for outdoor driveways, boundaries, and commercial sites.",
     features: [
       "4K Ultra HD Resolution",
       "AI Person & Vehicle Detection",
@@ -27,6 +30,7 @@ const productsData: ProductItem[] = [
     name: "Smart WiFi Pan-Tilt Camera",
     image: "/images/wifi-camera.png",
     price: "2,199",
+    description: "Highly versatile smart wireless dome camera with full 360-degree pan-tilt control, real-time two-way audio, and direct smartphone notification alerts.",
     features: [
       "360° Rotatable Dome View",
       "Two-Way Real-time Audio",
@@ -37,6 +41,7 @@ const productsData: ProductItem[] = [
     name: "High-Def Vandal Dome Camera",
     image: "/images/dome-camera.png",
     price: "1,899",
+    description: "Compact dome security camera designed for indoor rooms, offices, and retail lobbies. Outfitted with smart infrared lights for clear night vision.",
     features: [
       "5MP High-Resolution Sensor",
       "Weatherproof & Vandal-Resistant",
@@ -47,16 +52,18 @@ const productsData: ProductItem[] = [
     name: "PTZ Speed Dome Camera",
     image: "/images/ptz-camera.png",
     price: "9,999",
+    description: "Heavy-duty outdoor speed dome camera with 30x optical zoom capabilities, active tracking system locks, and long-range laser night illumination.",
     features: [
       "30x Optical Zoom Control",
       "Auto-Tracking Target Lock",
-      "Long-Range Laser IR Night Vision",
+      "Long-Range Laser Night Vision",
     ],
   },
   {
     name: "Multi-Channel NVR Recorder",
     image: "/images/nvr.png",
     price: "6,499",
+    description: "Centralized network video recorder for security video storage, managing up to 16 digital IP feeds with smart space-saving H.265+ compression.",
     features: [
       "H.265+ Smart Compression",
       "Supports Up to 16 Cameras",
@@ -67,6 +74,7 @@ const productsData: ProductItem[] = [
     name: "CCTV Installation Accessories",
     image: "/images/accessories.png",
     price: "999",
+    description: "High-grade components including solid copper Cat6 cabling, consolidated SMPS power distributors, and gold-plated BNC connectors.",
     features: [
       "Coaxial Cat6 Copper Cables",
       "Heavy-Duty SMPS Power Unit",
@@ -85,98 +93,156 @@ export default function Products() {
   };
 
   return (
-    <section id="products" className="w-full py-20 bg-bg-secondary border-b border-border-custom overflow-hidden">
+    <section id="products" className="w-full py-16 md:py-24 bg-bg-secondary border-b border-border-custom overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Heading */}
-        <div className="text-center space-y-3 mb-16">
-          <span className="text-[11px] font-bold uppercase tracking-widest text-accent font-mono bg-accent/10 border border-accent/20 px-3 py-1 rounded-full">
+        <div className="text-center space-y-3 mb-12 md:mb-20">
+          <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-accent font-mono bg-accent/10 border border-accent/20 px-3 py-1 rounded-full">
             ✦ CERTIFIED HARDWARE ✦
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-text-primary tracking-tight">
             {t.productsHeading}
           </h2>
-          <p className="text-sm text-text-secondary max-w-[60ch] mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm text-text-secondary max-w-[60ch] mx-auto leading-relaxed">
             {t.productsSub}
           </p>
         </div>
 
         {/* Products Grid */}
-        <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-x-auto md:overflow-x-visible pb-6 md:pb-0 snap-x snap-mandatory">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {productsData.map((product) => (
-            <div
+            <ProductCard
               key={product.name}
-              className="flex-shrink-0 w-[290px] sm:w-[320px] md:w-auto snap-center glass-card p-5 flex flex-col justify-between hover:border-accent/40 hover:-translate-y-1 transition-all duration-300 bg-bg-card"
-            >
-              <div className="space-y-4">
-                <div className="relative w-full h-[180px] sm:h-[220px] rounded-xl overflow-hidden bg-bg-primary border border-border-custom group">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-bg-primary/40 to-transparent pointer-events-none" />
-                </div>
-                
-                <h3 className="text-base sm:text-lg font-bold text-text-primary font-heading tracking-wide leading-snug">
-                  {product.name}
-                </h3>
-
-                <ul className="space-y-2 text-xs text-text-secondary">
-                  {product.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="mt-8 pt-4 border-t border-border-custom space-y-4">
-                <div className="flex items-baseline justify-between">
-                  <span className="text-xs text-text-secondary font-medium">{t.startingAt}</span>
-                  <span className="text-lg sm:text-xl font-extrabold text-text-primary font-heading">
-                    ₹{product.price}
-                    <span className="text-xs text-text-secondary font-normal ml-0.5">*</span>
-                  </span>
-                </div>
-
-                <div className="flex gap-2 text-xs">
-                  <a
-                    href={`tel:${siteConfig.phone}`}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full border border-border-custom hover:bg-bg-primary text-text-primary font-bold transition-all active:scale-95"
-                  >
-                    <Phone className="h-3.5 w-3.5 text-accent" />
-                    <span>{t.callBtn}</span>
-                  </a>
-
-                  <a
-                    href={getWhatsappUrl(product.name)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-success-whatsapp text-white font-bold transition-all active:scale-95 hover:opacity-90"
-                  >
-                    <MessageCircle className="h-3.5 w-3.5" />
-                    <span>{t.inquiryBtn}</span>
-                  </a>
-
-                  <a
-                    href="#contact"
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-accent text-white font-bold hover:bg-accent/90 transition-all active:scale-95"
-                  >
-                    <FileText className="h-3.5 w-3.5" />
-                    <span>{t.quoteBtn}</span>
-                  </a>
-                </div>
-              </div>
-
-            </div>
+              product={product}
+              t={t}
+              getWhatsappUrl={getWhatsappUrl}
+            />
           ))}
         </div>
 
       </div>
     </section>
+  );
+}
+
+/* Individual Interactive Product Card Component */
+function ProductCard({
+  product,
+  t,
+  getWhatsappUrl,
+}: {
+  product: ProductItem;
+  t: any;
+  getWhatsappUrl: (name: string) => string;
+}) {
+  const [showOptions, setShowOptions] = useState(false);
+
+  return (
+    <div className="glass-card p-5 flex flex-col justify-between hover:border-accent/40 transition-all duration-300 bg-bg-card rounded-2xl relative group shadow-sm border border-border-custom hover:shadow-lg">
+      
+      {/* Product Information */}
+      <div className="space-y-4">
+        {/* Image Frame */}
+        <div className="relative w-full h-[180px] sm:h-[200px] rounded-xl overflow-hidden bg-bg-primary border border-border-custom group-hover:border-accent/20 transition-colors">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover group-hover:scale-102 transition-transform duration-500"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-bg-primary/20 to-transparent pointer-events-none" />
+        </div>
+
+        <div className="space-y-2">
+          {/* Title */}
+          <h3 className="text-lg font-bold text-text-primary font-heading tracking-wide leading-snug">
+            {product.name}
+          </h3>
+
+          {/* Description Text - Rich, detailed context */}
+          <p className="text-xs text-text-secondary leading-relaxed font-sans font-normal">
+            {product.description}
+          </p>
+
+          {/* Features Checklist */}
+          <ul className="grid grid-cols-1 gap-2 pt-2 text-[11px] text-text-secondary">
+            {product.features.map((feature, idx) => (
+              <li key={idx} className="flex items-center gap-2">
+                <CheckCircle2 className="h-3.5 w-3.5 text-accent shrink-0" />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* Pricing & Unified Contact Action */}
+      <div className="mt-6 pt-4 border-t border-border-custom relative">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col">
+            <span className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold font-sans">{t.startingAt}</span>
+            <span className="text-xl font-extrabold text-text-primary font-heading mt-0.5">
+              ₹{product.price}
+              <span className="text-xs text-text-secondary font-normal ml-0.5">*</span>
+            </span>
+          </div>
+
+          {/* Single Action Button that reveals options */}
+          <button
+            onClick={() => setShowOptions(!showOptions)}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold font-heading bg-accent text-white hover:bg-accent/90 shadow-md transition-all duration-300 active:scale-95 uppercase tracking-wider cursor-pointer"
+          >
+            <span>Get Quote</span>
+            {showOptions ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+          </button>
+        </div>
+
+        {/* Expandable Options Panel */}
+        {showOptions && (
+          <div className="absolute bottom-16 right-0 left-0 bg-bg-secondary border border-border-custom rounded-xl p-3 shadow-xl flex items-center justify-around gap-2 animate-fadeIn z-20 backdrop-blur-md">
+            
+            {/* Call */}
+            <a
+              href={`tel:${siteConfig.phone}`}
+              className="flex flex-col items-center gap-1.5 p-2 hover:bg-bg-primary rounded-lg transition-colors flex-1 text-center"
+            >
+              <div className="p-2.5 rounded-full bg-accent/10 border border-accent/20">
+                <Phone className="h-4 w-4 text-accent" />
+              </div>
+              <span className="text-[9px] font-bold text-text-primary uppercase tracking-wide">Call Now</span>
+            </a>
+
+            {/* WhatsApp */}
+            <a
+              href={getWhatsappUrl(product.name)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center gap-1.5 p-2 hover:bg-bg-primary rounded-lg transition-colors flex-1 text-center"
+            >
+              <div className="p-2.5 rounded-full bg-success-whatsapp/10 border border-success-whatsapp/20">
+                <MessageCircle className="h-4 w-4 text-success-whatsapp" />
+              </div>
+              <span className="text-[9px] font-bold text-text-primary uppercase tracking-wide">WhatsApp</span>
+            </a>
+
+            {/* Free Quote Form */}
+            <a
+              href="#contact"
+              onClick={() => setShowOptions(false)}
+              className="flex flex-col items-center gap-1.5 p-2 hover:bg-bg-primary rounded-lg transition-colors flex-1 text-center"
+            >
+              <div className="p-2.5 rounded-full bg-accent/10 border border-accent/20">
+                <FileText className="h-4 w-4 text-accent" />
+              </div>
+              <span className="text-[9px] font-bold text-text-primary uppercase tracking-wide">Get Quote</span>
+            </a>
+
+          </div>
+        )}
+      </div>
+
+    </div>
   );
 }
