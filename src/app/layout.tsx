@@ -20,20 +20,20 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   metadataBase: new URL("https://nakshatracctv.com"),
   title: "Nakshatra CCTV Services | Premium CCTV Installation & Surveillance",
-  description: "Secure your home & business with professional CCTV installation, repair, maintenance, and AMC services in Hyderabad. Certified experts and 24/7 support.",
+  description: "Secure your home & business with professional CCTV installation, repair, maintenance, and AMC services in Nalgonda & Suryapet. Certified experts and 24/7 support.",
   keywords: [
-    "CCTV Installation Hyderabad",
-    "Security Camera Setup Hyderabad",
-    "CCTV Repair Service",
-    "IP Camera Installation",
-    "Wireless CCTV Hyderabad",
+    "CCTV Installation Nalgonda",
+    "Security Camera Setup Suryapet",
+    "CCTV Repair Service Nalgonda",
+    "IP Camera Installation Nalgonda",
+    "Wireless CCTV Nalgonda",
     "AMC CCTV Maintenance",
-    "Best CCTV Dealer Hyderabad",
+    "Best CCTV Dealer Nalgonda",
   ],
   authors: [{ name: "Nakshatra CCTV Services" }],
   openGraph: {
     title: "Nakshatra CCTV Services | Premium CCTV Installation & Surveillance",
-    description: "Secure your home & business with professional CCTV installation, repair, maintenance, and AMC services in Hyderabad.",
+    description: "Secure your home & business with professional CCTV installation, repair, maintenance, and AMC services in Nalgonda & Suryapet.",
     url: "https://nakshatracctv.com",
     siteName: "Nakshatra CCTV Services",
     images: [
@@ -64,16 +64,16 @@ const jsonLd = {
   "priceRange": "$$",
   "address": {
     "@type": "PostalAddress",
-    "streetAddress": "Plot No. 42, H.No: 1-90/2/A, Madhapur",
-    "addressLocality": "Hyderabad",
+    "streetAddress": "H.No: 5-4-12, Near Clock Tower",
+    "addressLocality": "Nalgonda",
     "addressRegion": "Telangana",
-    "postalCode": "500081",
+    "postalCode": "508001",
     "addressCountry": "IN"
   },
   "geo": {
     "@type": "GeoCoordinates",
-    "latitude": 17.4483,
-    "longitude": 78.3915
+    "latitude": 17.0500,
+    "longitude": 79.2700
   },
   "openingHoursSpecification": {
     "@type": "OpeningHoursSpecification",

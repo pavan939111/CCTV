@@ -9,17 +9,13 @@ type Props = {
 
 // Map area slugs to formatted display names
 const areaMap: Record<string, string> = {
-  "madhapur": "Madhapur",
-  "gachibowli": "Gachibowli",
-  "kondapur": "Kondapur",
-  "jubilee-hills": "Jubilee Hills",
-  "banjara-hills": "Banjara Hills",
-  "kukatpally": "Kukatpally",
-  "miyapur": "Miyapur",
-  "begumpet": "Begumpet",
-  "secunderabad": "Secunderabad",
-  "hitech-city": "Hitech City",
   "nalgonda": "Nalgonda",
+  "suryapet": "Suryapet",
+  "miryalaguda": "Miryalaguda",
+  "nakrekal": "Nakrekal",
+  "narketpally": "Narketpally",
+  "devarakonda": "Devarakonda",
+  "bhongir": "Bhongir",
 };
 
 export async function generateStaticParams() {

@@ -17,10 +17,10 @@ export const translations = {
     callUsAnytime: "Call Us Anytime",
 
     // Hero Section
-    heroBadge: "#1 Trusted CCTV Installation Expert in Hyderabad",
+    heroBadge: "#1 Trusted CCTV Installation Expert in Nalgonda & Suryapet",
     heroH1Pre: "Secure Your Home & Business with",
     heroH1Accent: "Professional CCTV Installation",
-    heroH1Post: "in Hyderabad",
+    heroH1Post: "in Nalgonda & Suryapet",
     heroSub: "Premium CCTV installation, repair, maintenance, and surveillance solutions for homes, apartments, offices, factories, shops, schools, hospitals, warehouses, and commercial spaces.",
     chatOnWhatsapp: "Chat on WhatsApp",
     ratingsCount: "4.9/5 (500+ Installs)",
@@ -92,7 +92,7 @@ export const translations = {
 
     // Testimonials
     testimonialsHeading: "Authentic Client Reviews",
-    testimonialsSub: "Read feedback from residential and commercial clients across Hyderabad.",
+    testimonialsSub: "Read feedback from residential and commercial clients across Nalgonda & Suryapet.",
 
     // Gallery
     galleryHeading: "Cabling Makeovers & Installation Gallery",
@@ -119,7 +119,7 @@ export const translations = {
     getQuoteBar: "Get Quote",
 
     // Footer
-    footerDesc: "Hyderabad's #1 trusted CCTV camera installation, repair, and AMC maintenance experts.",
+    footerDesc: "Nalgonda & Suryapet's #1 trusted CCTV camera installation, repair, and AMC maintenance experts.",
     quickLinks: "Quick Links",
     servicesCol: "Our Services",
     areasCol: "Service Areas",
