@@ -37,16 +37,14 @@ export const translations = {
     warrantyAvailableLabel: "Warranty Assured",
 
     // Services Grid
-    servicesHeading: "Complete CCTV Solutions Under One Roof",
-    servicesSub: "High-definition camera setups tailored for every facility type.",
-    srvHome: "Home Security",
-    srvOffice: "Office Security",
-    srvApartment: "Apartment Security",
-    srvRetail: "Retail Shop Security",
-    srvWarehouse: "Warehouse Security",
-    srvHospital: "Hospital Security",
-    srvSchool: "School & College Security",
-    srvFactory: "Industrial Security",
+    servicesHeading: "Complete CCTV Under One Roof",
+    servicesSub: "Professional security and surveillance system integration services.",
+    srvHome: "CCTV Installation",
+    srvOffice: "CCTV Repair & Service",
+    srvApartment: "Wireless Camera Setup",
+    srvRetail: "IP Camera Setup",
+    srvWarehouse: "Annual Maintenance (AMC)",
+    srvHospital: "Biometrics & Access Control",
     learnMore: "Learn More →",
 
     // Products
@@ -161,16 +159,14 @@ export const translations = {
     warrantyAvailableLabel: "వారంటీ హామీ",
 
     // Services Grid
-    servicesHeading: "ఒకే చోట పూర్తి CCTV సెక్యూరిటీ పరిహారాలు",
-    servicesSub: "ప్రతి స్థలానికి సరిపోయే హై-డెఫినిషన్ కెమెరా సెటప్‌లు.",
-    srvHome: "ఇంటి భద్రత",
-    srvOffice: "ఆఫీస్ భద్రత",
-    srvApartment: "అపార్ట్‌మెంట్ భద్రత",
-    srvRetail: "రిటైల్ షాప్ భద్రత",
-    srvWarehouse: "వేర్‌హౌస్ భద్రత",
-    srvHospital: "హాస్పిటల్ భద్రత",
-    srvSchool: "స్కూల్ & కాలేజ్ భద్రత",
-    srvFactory: "పరిశ్రమల భద్రత",
+    servicesHeading: "ఒకే చోట పూర్తి CCTV సేవలు",
+    servicesSub: "వృత్తిపరమైన సెక్యూరిటీ మరియు నిఘా వ్యవస్థల ఏకీకరణ సేవలు.",
+    srvHome: "CCTV ఇన్‌స్టాలేషన్",
+    srvOffice: "CCTV రిపేర్ & సర్వీస్",
+    srvApartment: "వైర్‌లెస్ కెమెరా సెటప్",
+    srvRetail: "IP కెమెరా సెటప్",
+    srvWarehouse: "వార్షిక మెయింటెనెన్స్ (AMC)",
+    srvHospital: "బయోమెట్రిక్స్ & యాక్సెస్ కంట్రోల్",
     learnMore: "మరిన్ని వివరాలు →",
 
     // Products

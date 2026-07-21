@@ -38,8 +38,8 @@ export default function HomeRoot() {
         {/* 3.5 Products Grid */}
         <Products />
 
-        {/* 3.6 Why Choose Nakshatra (10 Icon Cards) */}
-        <WhyChooseUs />
+        {/* 3.6 Industries Served */}
+        <Industries />
 
         {/* 3.7 Installation Process Timeline (8 Steps) */}
         <Timeline />
@@ -47,8 +47,8 @@ export default function HomeRoot() {
         {/* 3.8 Brands Marquee */}
         <Brands />
 
-        {/* 3.9 Industries Served */}
-        <Industries />
+        {/* 3.9 Why Choose Nakshatra (10 Icon Cards) */}
+        <WhyChooseUs />
 
         {/* 3.10 Testimonials Carousel */}
         <Testimonials />

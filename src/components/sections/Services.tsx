@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Home, Building2, Building, ShoppingBag, Box, Activity, GraduationCap, Factory } from "lucide-react";
+import { ChevronLeft, ChevronRight, Shield, Wrench, Wifi, Network, CalendarCheck, Fingerprint } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 export default function Services() {
@@ -11,14 +11,48 @@ export default function Services() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const servicesData = [
-    { title: t.srvHome, sub: "Solutions", image: "/images/hero-globe-villa.png", icon: Home, link: "/cctv-installation" },
-    { title: t.srvOffice, sub: "Solutions", image: "/images/cctv-lobby.png", icon: Building2, link: "/cctv-installation" },
-    { title: t.srvApartment, sub: "Security", image: "/images/dome-camera.png", icon: Building, link: "/cctv-installation" },
-    { title: t.srvRetail, sub: "Security", image: "/images/wifi-camera.png", icon: ShoppingBag, link: "/wireless-cctv-installation" },
-    { title: t.srvWarehouse, sub: "Security", image: "/images/nvr.png", icon: Box, link: "/ip-camera-installation" },
-    { title: t.srvHospital, sub: "Security", image: "/images/ptz-camera.png", icon: Activity, link: "/cctv-installation" },
-    { title: t.srvSchool, sub: "Security", image: "/images/ip-camera.png", icon: GraduationCap, link: "/cctv-installation" },
-    { title: t.srvFactory, sub: "Security", image: "/images/accessories.png", icon: Factory, link: "/ip-camera-installation" },
+    {
+      title: t.srvHome,
+      sub: "Professional Installation",
+      image: "/images/service-cctv-install.png",
+      icon: Shield,
+      link: "/cctv-installation"
+    },
+    {
+      title: t.srvOffice,
+      sub: "Diagnostics & Fixes",
+      image: "/images/service-cctv-repair.png",
+      icon: Wrench,
+      link: "/cctv-repair"
+    },
+    {
+      title: t.srvApartment,
+      sub: "Smart Wireless Setup",
+      image: "/images/service-wifi-setup.png",
+      icon: Wifi,
+      link: "/wireless-cctv-installation"
+    },
+    {
+      title: t.srvRetail,
+      sub: "HD Network Integration",
+      image: "/images/service-ip-setup.png",
+      icon: Network,
+      link: "/ip-camera-installation"
+    },
+    {
+      title: t.srvWarehouse,
+      sub: "Proactive SLA Support",
+      image: "/images/service-amc-maintenance.png",
+      icon: CalendarCheck,
+      link: "/amc-services"
+    },
+    {
+      title: t.srvHospital,
+      sub: "Biometrics & Logs",
+      image: "/images/service-biometrics.png",
+      icon: Fingerprint,
+      link: "/biometric-attendance-system"
+    }
   ];
 
   const scrollLeft = () => {
@@ -34,18 +68,18 @@ export default function Services() {
   };
 
   return (
-    <section id="services" className="w-full py-20 bg-bg-primary overflow-hidden border-b border-border-custom select-none relative z-10">
+    <section id="services" className="w-full py-16 md:py-24 bg-bg-primary overflow-hidden border-b border-border-custom select-none relative z-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center space-y-3 mb-16 relative">
-          <span className="text-[11px] font-bold uppercase tracking-widest text-accent font-mono bg-accent/10 border border-accent/20 px-3 py-1 rounded-full">
+        <div className="text-center space-y-3 mb-12 md:mb-16 relative">
+          <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-accent font-mono bg-accent/10 border border-accent/20 px-3 py-1 rounded-full">
             ✦ SECURITY SOLUTIONS ✦
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-text-primary tracking-tight leading-tight">
             {t.servicesHeading}
           </h2>
-          <p className="text-sm text-text-secondary max-w-[60ch] mx-auto">
+          <p className="text-xs sm:text-sm text-text-secondary max-w-[60ch] mx-auto">
             {t.servicesSub}
           </p>
 
@@ -87,7 +121,7 @@ export default function Services() {
                     alt={service.title}
                     fill
                     sizes="(max-width: 768px) 100vw, 300px"
-                    className="object-cover group-hover:scale-105 transition-transform duration-700 opacity-60"
+                    className="object-cover group-hover:scale-105 transition-transform duration-700 opacity-55"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-bg-primary via-bg-primary/40 to-transparent pointer-events-none" />
                 </div>
@@ -101,7 +135,7 @@ export default function Services() {
                       <span className="block text-sm font-bold text-text-primary leading-none font-heading">
                         {service.title}
                       </span>
-                      <span className="text-[10px] text-text-secondary font-medium mt-1 block leading-none">
+                      <span className="text-[10px] text-text-secondary font-medium mt-1.5 block leading-none">
                         {service.sub}
                       </span>
                     </div>
