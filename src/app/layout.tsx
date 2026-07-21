@@ -60,7 +60,7 @@ const jsonLd = {
   "image": "https://nakshatracctv.com/images/hero-poster-dark.png",
   "@id": "https://nakshatracctv.com/#localbusiness",
   "url": "https://nakshatracctv.com",
-  "telephone": "+91 91777 56832",
+  "telephone": "+91 79815 77411",
   "priceRange": "$$",
   "address": {
     "@type": "PostalAddress",
