@@ -162,7 +162,7 @@ Please contact me.`;
                         required
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
-                        placeholder="e.g. Madhapur, Hyderabad"
+                        placeholder="e.g. Clock Tower, Nalgonda"
                         className="w-full px-4 py-3 rounded-xl bg-bg-primary/60 border border-border-custom text-text-primary focus:outline-none focus:border-accent text-xs font-medium"
                       />
                     </div>

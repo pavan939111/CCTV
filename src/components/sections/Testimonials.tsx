@@ -20,7 +20,7 @@ const placeholderReviews: Testimonial[] = [
   {
     id: "placeholder-1",
     name: "Rahul Verma",
-    locality: "Madhapur, Hyderabad",
+    locality: "Clock Tower, Nalgonda",
     rating: 5,
     text: "Excellent service. The technicians arrived on time, mounted 8 bullet cameras, configured the NVR, and hid all cables behind conduits. Very neat work.",
     date: "Google Review",
@@ -29,7 +29,7 @@ const placeholderReviews: Testimonial[] = [
   {
     id: "placeholder-2",
     name: "Swati Reddy",
-    locality: "Kondapur, Hyderabad",
+    locality: "Suryapet Road, Nalgonda",
     rating: 5,
     text: "My legacy DVR lost video feed on all channels. Nakshatra's engineer diagnosed the SMPS power supply issue and repaired it within an hour. Highly recommended.",
     date: "WhatsApp Feedback",
@@ -38,7 +38,7 @@ const placeholderReviews: Testimonial[] = [
   {
     id: "placeholder-3",
     name: "Kiran Kumar",
-    locality: "Jubilee Hills, Hyderabad",
+    locality: "Miryalaguda, Nalgonda",
     rating: 5,
     text: "Signed up for their commercial AMC for our retail showroom. Their monthly cleaning and camera health checkups have kept our systems 100% online.",
     date: "Google Review",
