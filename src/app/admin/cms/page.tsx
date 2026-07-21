@@ -6,7 +6,7 @@ import {
   deleteDoc, updateDoc, serverTimestamp, orderBy 
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Plus, Trash2, Check, X, Star, Camera, Eye } from "lucide-react";
+import { Plus, Trash2, Check, X, Star, Camera, HardDrive } from "lucide-react";
 
 type FAQ = {
   id: string;
@@ -33,8 +33,17 @@ type GalleryItem = {
   gridRef: string;
 };
 
+type ProductItem = {
+  id: string;
+  name: string;
+  image: string;
+  price: string;
+  description: string;
+  features: string[];
+};
+
 export default function CmsDashboard() {
-  const [activeSubTab, setActiveSubTab] = useState<"faqs" | "testimonials" | "gallery">("faqs");
+  const [activeSubTab, setActiveSubTab] = useState<"faqs" | "testimonials" | "gallery" | "products">("faqs");
   
   // FAQs States
   const [faqs, setFaqs] = useState<FAQ[]>([]);
@@ -58,6 +67,15 @@ export default function CmsDashboard() {
   const [galDesc, setGalDesc] = useState("");
   const [galGridRef, setGalGridRef] = useState("");
   const [galleryLoading, setGalleryLoading] = useState(false);
+
+  // Products States
+  const [products, setProducts] = useState<ProductItem[]>([]);
+  const [prodName, setProdName] = useState("");
+  const [prodPrice, setProdPrice] = useState("");
+  const [prodImage, setProdImage] = useState("");
+  const [prodDesc, setProdDesc] = useState("");
+  const [prodFeaturesRaw, setProdFeaturesRaw] = useState("");
+  const [productsLoading, setProductsLoading] = useState(false);
 
   // Fetch FAQs
   const fetchFaqs = async () => {
@@ -132,10 +150,36 @@ export default function CmsDashboard() {
     }
   };
 
+  // Fetch Products catalog
+  const fetchProducts = async () => {
+    setProductsLoading(true);
+    try {
+      const querySnapshot = await getDocs(query(collection(db, "products"), orderBy("timestamp", "desc")));
+      const items: ProductItem[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        items.push({
+          id: doc.id,
+          name: data.name || "",
+          image: data.image || "",
+          price: data.price || "0",
+          description: data.description || "",
+          features: Array.isArray(data.features) ? data.features : [],
+        });
+      });
+      setProducts(items);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    } finally {
+      setProductsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (activeSubTab === "faqs") fetchFaqs();
     if (activeSubTab === "testimonials") fetchTestimonials();
     if (activeSubTab === "gallery") fetchGallery();
+    if (activeSubTab === "products") fetchProducts();
   }, [activeSubTab]);
 
   // Add FAQ
@@ -253,12 +297,51 @@ export default function CmsDashboard() {
     }
   };
 
+  // Add Hardware Product item
+  const handleAddProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!prodName || !prodPrice || !prodImage) return;
+
+    const features = prodFeaturesRaw.split(",").map((f) => f.trim()).filter(Boolean);
+
+    try {
+      await addDoc(collection(db, "products"), {
+        name: prodName,
+        price: prodPrice,
+        image: prodImage,
+        description: prodDesc,
+        features: features,
+        timestamp: serverTimestamp(),
+      });
+      setProdName("");
+      setProdPrice("");
+      setProdImage("");
+      setProdDesc("");
+      setProdFeaturesRaw("");
+      fetchProducts();
+    } catch (err) {
+      console.error("Add Product failed:", err);
+      alert("Failed to save hardware product.");
+    }
+  };
+
+  // Delete Hardware Product item
+  const handleDeleteProduct = async (id: string) => {
+    if (!confirm("Delete this hardware product record from inventory?")) return;
+    try {
+      await deleteDoc(doc(db, "products", id));
+      setProducts(products.filter((item) => item.id !== id));
+    } catch (err) {
+      console.error("Delete Product failed:", err);
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Page Header */}
       <div>
         <h1 className="text-2xl md:text-3xl font-extrabold font-heading text-white">Content CMS</h1>
-        <p className="text-xs text-[#94A3B8] mt-1">Manage database overrides for landing page custom FAQs, customer reviews, and installation photos.</p>
+        <p className="text-xs text-[#94A3B8] mt-1">Manage database overrides for landing page custom FAQs, reviews, installation photos, and hardware catalog products.</p>
       </div>
 
       {/* Selector Subtabs */}
@@ -292,6 +375,16 @@ export default function CmsDashboard() {
           }`}
         >
           Gallery Photos
+        </button>
+        <button
+          onClick={() => setActiveSubTab("products")}
+          className={`px-5 py-2.5 rounded-lg text-xs font-semibold transition ${
+            activeSubTab === "products"
+              ? "bg-accent text-white"
+              : "bg-white/5 hover:bg-white/10 text-[#94A3B8] hover:text-white"
+          }`}
+        >
+          Hardware Products
         </button>
       </div>
 
@@ -458,7 +551,7 @@ export default function CmsDashboard() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <span className={`px-2.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
-                           t.status === "approved"
+                          t.status === "approved"
                             ? "bg-green-500/10 border border-green-500/20 text-green-400"
                             : "bg-yellow-500/10 border border-yellow-500/20 text-yellow-400"
                         }`}>
@@ -630,6 +723,139 @@ export default function CmsDashboard() {
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           <span>Delete</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Products Panel */}
+      {activeSubTab === "products" && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Product Add Form */}
+          <div className="lg:col-span-4 bg-white/3 border border-white/10 rounded-xl p-5 space-y-4">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-white border-b border-white/5 pb-2">Add Hardware Product</h2>
+            <form onSubmit={handleAddProduct} className="space-y-4 text-xs">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Product Name</label>
+                <input
+                  type="text"
+                  required
+                  value={prodName}
+                  onChange={(e) => setProdName(e.target.value)}
+                  placeholder="e.g. 5MP Full-Color Dome Camera"
+                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Starting Price (INR, no symbols)</label>
+                <input
+                  type="text"
+                  required
+                  value={prodPrice}
+                  onChange={(e) => setProdPrice(e.target.value)}
+                  placeholder="e.g. 2,499"
+                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Image URL / Path</label>
+                <input
+                  type="text"
+                  required
+                  value={prodImage}
+                  onChange={(e) => setProdImage(e.target.value)}
+                  placeholder="e.g. /images/dome-camera.png"
+                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Key Features (Comma separated)</label>
+                <input
+                  type="text"
+                  value={prodFeaturesRaw}
+                  onChange={(e) => setProdFeaturesRaw(e.target.value)}
+                  placeholder="e.g. Smart Night Vision, AI Face Tracking, Weatherproof"
+                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Product Description</label>
+                <textarea
+                  required
+                  rows={3}
+                  value={prodDesc}
+                  onChange={(e) => setProdDesc(e.target.value)}
+                  placeholder="Provide detailed description of sensor specs, optics, night range, and compatibility..."
+                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent resize-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-2 bg-accent hover:bg-accent-glow text-white font-semibold rounded flex items-center justify-center gap-1.5 transition"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Save Hardware Product</span>
+              </button>
+            </form>
+          </div>
+
+          {/* Product Listing */}
+          <div className="lg:col-span-8 space-y-4">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-white">Active Product Catalog</h2>
+            {productsLoading ? (
+              <div className="p-10 flex flex-col items-center justify-center bg-white/3 border border-white/10 rounded-xl">
+                <div className="h-6 w-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : products.length === 0 ? (
+              <p className="text-xs text-[#94A3B8] italic p-6 bg-white/3 border border-white/10 rounded-xl">
+                No custom products found in database. Pre-filled catalog list will display on landing page.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {products.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-white/3 border border-white/10 rounded-xl overflow-hidden flex flex-col justify-between"
+                  >
+                    <div className="relative w-full h-[140px] bg-bg-primary">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                    <div className="p-4 space-y-3 flex-grow flex flex-col justify-between">
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center text-[10px] font-bold text-accent">
+                          <span>Starting at ₹{item.price}</span>
+                        </div>
+                        <h4 className="text-xs font-bold text-white tracking-wide font-heading">
+                          {item.name}
+                        </h4>
+                        <p className="text-[10px] text-[#94A3B8] leading-relaxed line-clamp-3">
+                          {item.description}
+                        </p>
+                      </div>
+
+                      <div className="pt-3 border-t border-white/5 flex justify-end">
+                        <button
+                          onClick={() => handleDeleteProduct(item.id)}
+                          className="p-2 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 rounded transition flex items-center gap-1 text-[10px] font-bold"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          <span>Delete Product</span>
                         </button>
                       </div>
                     </div>

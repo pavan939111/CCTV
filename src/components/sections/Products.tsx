@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Phone, MessageCircle, FileText, ChevronUp, ChevronDown, CheckCircle2 } from "lucide-react";
 import { siteConfig } from "@/config/site.config";
 import { useLanguage } from "@/context/LanguageContext";
+import { collection, query, getDocs, orderBy } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 type ProductItem = {
   name: string;
@@ -14,7 +16,7 @@ type ProductItem = {
   features: string[];
 };
 
-const productsData: ProductItem[] = [
+const defaultProductsData: ProductItem[] = [
   {
     name: "Premium 4K IP Bullet Camera",
     image: "/images/ip-camera.png",
@@ -85,6 +87,37 @@ const productsData: ProductItem[] = [
 
 export default function Products() {
   const { t } = useLanguage();
+  const [products, setProducts] = useState<ProductItem[]>(defaultProductsData);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const q = query(collection(db, "products"), orderBy("timestamp", "desc"));
+        const querySnapshot = await getDocs(q);
+        const items: ProductItem[] = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          items.push({
+            name: data.name || "",
+            image: data.image || "",
+            price: data.price || "0",
+            description: data.description || "",
+            features: Array.isArray(data.features) ? data.features : [],
+          });
+        });
+        if (items.length > 0) {
+          setProducts(items);
+        }
+      } catch (err) {
+        console.error("Error fetching products from Firestore:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const getWhatsappUrl = (productName: string) => {
     return `https://wa.me/${siteConfig.whatsappNumber}?text=${encodeURIComponent(
@@ -110,16 +143,23 @@ export default function Products() {
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {productsData.map((product) => (
-            <ProductCard
-              key={product.name}
-              product={product}
-              t={t}
-              getWhatsappUrl={getWhatsappUrl}
-            />
-          ))}
-        </div>
+        {loading && products === defaultProductsData ? (
+          <div className="py-12 flex flex-col items-center justify-center">
+            <div className="h-8 w-8 border-2 border-accent border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-xs text-text-secondary">Loading hardware catalogue...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {products.map((product) => (
+              <ProductCard
+                key={product.name}
+                product={product}
+                t={t}
+                getWhatsappUrl={getWhatsappUrl}
+              />
+            ))}
+          </div>
+        )}
 
       </div>
     </section>
@@ -167,14 +207,16 @@ function ProductCard({
           </p>
 
           {/* Features Checklist */}
-          <ul className="grid grid-cols-1 gap-2 pt-2 text-[11px] text-text-secondary">
-            {product.features.map((feature, idx) => (
-              <li key={idx} className="flex items-center gap-2">
-                <CheckCircle2 className="h-3.5 w-3.5 text-accent shrink-0" />
-                <span>{feature}</span>
-              </li>
-            ))}
-          </ul>
+          {product.features && product.features.length > 0 && (
+            <ul className="grid grid-cols-1 gap-2 pt-2 text-[11px] text-text-secondary">
+              {product.features.map((feature, idx) => (
+                <li key={idx} className="flex items-center gap-2">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-accent shrink-0" />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
 
