@@ -139,7 +139,7 @@ export const translations = {
     callUsAnytime: "ఎప్పుడైనా కాల్ చేయండి",
 
     // Hero Section
-    heroBadge: "హైదరాబాద్‌లో #1 విశ్వసనీయ CCTV ఇన్‌స్టాలేషన్ నిపుణులు",
+    heroBadge: "నల్గొండలో #1 విశ్వసనీయ CCTV ఇన్‌స్టాలేషన్ నిపుణులు",
     heroH1Pre: "వృత్తిపరమైన",
     heroH1Accent: "CCTV ఇన్‌స్టాలేషన్‌తో",
     heroH1Post: "మీ ఇల్లు మరియు వ్యాపారాన్ని సురక్షితం చేసుకోండి",
@@ -212,7 +212,7 @@ export const translations = {
 
     // Testimonials
     testimonialsHeading: "కస్టమర్ నిజమైన అభిప్రాయాలు",
-    testimonialsSub: "హైదరాబాద్ వ్యాప్తంగా ఉన్న మా కస్టమర్ల అనుభవాలను చదవండి.",
+    testimonialsSub: "నల్గొండ వ్యాప్తంగా ఉన్న మా కస్టమర్ల అనుభవాలను చదవండి.",
 
     // Gallery
     galleryHeading: "వైరింగ్ మేకోవర్లు & ఇన్‌స్టాలేషన్ గ్యాలరీ",
@@ -239,7 +239,7 @@ export const translations = {
     getQuoteBar: "కొటేషన్",
 
     // Footer
-    footerDesc: "హైదరాబాద్‌లో #1 విశ్వసనీయ CCTV కెమెరా ఇన్‌స్టాలేషన్, రిపేర్ మరియు AMC సర్వీస్ నిపుణులు.",
+    footerDesc: "నల్గొండలో #1 విశ్వసనీయ CCTV కెమెరా ఇన్‌స్టాలేషన్, రిపేర్ మరియు AMC సర్వీస్ నిపుణులు.",
     quickLinks: "ముఖ్యమైన లింకులు",
     servicesCol: "మా సేవలు",
     areasCol: "సేవా ప్రాంతాలు",
