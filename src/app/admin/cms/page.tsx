@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { 
-  collection, query, getDocs, addDoc, doc, 
+  collection, query, getDocs, addDoc, doc, setDoc,
   deleteDoc, updateDoc, serverTimestamp, orderBy 
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Plus, Trash2, Check, X, Star, Camera, HardDrive, Pencil } from "lucide-react";
+import { Plus, Trash2, Check, X, Star, Camera, HardDrive, Pencil, Database } from "lucide-react";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
+import { useLanguage } from "@/context/LanguageContext";
 
 type FAQ = {
   id: string;
@@ -44,7 +45,172 @@ type ProductItem = {
   features: string[];
 };
 
+// Default seed structures (containing all products, testimonials, gallery, and primary details)
+const defaultFaqs: FAQ[] = [
+  {
+    id: "default-faq-1",
+    question: "How much does CCTV installation cost in Nalgonda?",
+    answer: "The cost depends on camera types (analog/IP), quantities, and layout. A basic 4-camera High-Definition setup starts around ₹12,000–₹15,000, while digital IP setups start at ₹20,000.",
+  },
+  {
+    id: "default-faq-2",
+    question: "Which CCTV brand is the best for security?",
+    answer: "We recommend CP Plus, Hikvision, and Dahua for residential and standard commercial properties. They offer high value, reliability, and excellent app support.",
+  },
+  {
+    id: "default-faq-3",
+    question: "Can I monitor my security cameras live on my mobile phone?",
+    answer: "Yes, all modern configurations support remote cloud monitoring via official gCMOB, Hik-Connect, or DMSS apps on your smartphones and tablets.",
+  },
+];
+
+const defaultGallery: GalleryItem[] = [
+  {
+    id: "default-gal-1",
+    title: "Corporate Lobby Surveillance",
+    location: "Nalgonda",
+    image: "/images/cctv-lobby.png",
+    desc: "Discrete ceiling dome camera installation offering 360-degree high-definition coverage of the main lobby entry.",
+    gridRef: "SEC_LOBBY_01",
+  },
+  {
+    id: "default-gal-2",
+    title: "Residential Villa Camera Layout",
+    location: "Suryapet",
+    image: "/images/service-cctv-install.png",
+    desc: "Premium outdoor weatherproof bullet cameras positioned to cover perimeter gates, driveways, and backyards.",
+    gridRef: "PER_VILLA_04",
+  },
+];
+
+const defaultProducts: ProductItem[] = [
+  {
+    id: "default-prod-1",
+    name: "Premium 4K IP Bullet Camera",
+    image: "/images/ip-camera.png",
+    price: "3,499",
+    description: "Enterprise-grade weatherproof bullet security camera featuring ultra-sharp 4K monitoring. Ideal for outdoor driveways, boundaries, and commercial sites.",
+    features: [
+      "4K Ultra HD Resolution",
+      "AI Person & Vehicle Detection",
+      "Power-over-Ethernet (PoE) Support",
+    ],
+  },
+  {
+    id: "default-prod-2",
+    name: "Smart WiFi Pan-Tilt Camera",
+    image: "/images/wifi-camera.png",
+    price: "2,199",
+    description: "Highly versatile smart wireless dome camera with full 360-degree pan-tilt control, real-time two-way audio, and direct smartphone notification alerts.",
+    features: [
+      "360° Rotatable Dome View",
+      "Two-Way Real-time Audio",
+      "Human Motion Tracking Alerts",
+    ],
+  },
+  {
+    id: "default-prod-3",
+    name: "High-Def Vandal Dome Camera",
+    image: "/images/dome-camera.png",
+    price: "1,899",
+    description: "Compact dome security camera designed for indoor rooms, offices, and retail lobbies. Outfitted with smart infrared lights for clear night vision.",
+    features: [
+      "5MP High-Resolution Sensor",
+      "Weatherproof & Vandal-Resistant",
+      "Smart Infrared Night Vision",
+    ],
+  },
+  {
+    id: "default-prod-4",
+    name: "PTZ Speed Dome Camera",
+    image: "/images/ptz-camera.png",
+    price: "9,999",
+    description: "Heavy-duty outdoor speed dome camera with 30x optical zoom capabilities, active tracking system locks, and long-range laser night illumination.",
+    features: [
+      "30x Optical Zoom Control",
+      "Auto-Tracking Target Lock",
+      "Long-Range Laser Night Vision",
+    ],
+  },
+  {
+    id: "default-prod-5",
+    name: "Multi-Channel NVR Recorder",
+    image: "/images/nvr.png",
+    price: "6,499",
+    description: "Centralized network video recorder for security video storage, managing up to 16 digital IP feeds with smart space-saving H.265+ compression.",
+    features: [
+      "H.265+ Smart Compression",
+      "Supports Up to 16 Cameras",
+      "Auto-Backup Cloud Logging",
+    ],
+  },
+  {
+    id: "default-prod-6",
+    name: "CCTV Installation Accessories",
+    image: "/images/accessories.png",
+    price: "999",
+    description: "High-grade components including solid copper Cat6 cabling, consolidated SMPS power distributors, and gold-plated BNC connectors.",
+    features: [
+      "Coaxial Cat6 Copper Cables",
+      "Heavy-Duty SMPS Power Unit",
+      "Shielded BNC/DC Connectors",
+    ],
+  },
+];
+
+const defaultTestimonialsSeed = [
+  {
+    name: "Rahul Verma",
+    locality: "Clock Tower, Nalgonda",
+    rating: 5,
+    text: "Excellent service. The technicians arrived on time, mounted 8 bullet cameras, configured the NVR, and hid all cables behind conduits. Very neat work.",
+    date: "Google Review",
+    status: "approved"
+  },
+  {
+    name: "Swati Reddy",
+    locality: "Suryapet Road, Nalgonda",
+    rating: 5,
+    text: "My legacy DVR lost video feed on all channels. Nakshatra's engineer diagnosed the SMPS power supply issue and repaired it within an hour. Highly recommended.",
+    date: "WhatsApp Feedback",
+    status: "approved"
+  },
+  {
+    name: "Kiran Kumar",
+    locality: "Miryalaguda, Nalgonda",
+    rating: 5,
+    text: "Signed up for their commercial AMC for our retail showroom. Their monthly cleaning and camera health checkups have kept our systems 100% online.",
+    date: "Google Review",
+    status: "approved"
+  }
+];
+
+const cmsTranslations = {
+  en: {
+    title: "Content CMS",
+    subtitle: "Manage, add, and edit database records for landing page FAQs, reviews, gallery photos, and products.",
+    initDb: "Initialize Database Now",
+    populating: "Populating Firestore...",
+    faqsTab: "Frequently Asked Questions (FAQs)",
+    reviewsTab: "Customer Reviews",
+    galleryTab: "Gallery Photos",
+    productsTab: "Hardware Products",
+  },
+  te: {
+    title: "కంటెంట్ CMS",
+    subtitle: "ల్యాండింగ్ పేజీ తరచుగా అడిగే ప్రశ్నలు, సమీక్షలు, గ్యాలరీ ఫోటోలు మరియు ఉత్పత్తుల కోసం డేటాబేస్ రికార్డులను నిర్వహించండి, జోడించండి మరియు సవరించండి.",
+    initDb: "డేటాబేస్ ప్రారంభించండి",
+    populating: "ఫైర్‌స్టోర్ నింపుతోంది...",
+    faqsTab: "తరచుగా అడిగే ప్రశ్నలు (FAQs)",
+    reviewsTab: "కస్టమర్ సమీక్షలు",
+    galleryTab: "గ్యాలరీ ఫోటోలు",
+    productsTab: "హార్డ్‌వేర్ ఉత్పత్తులు",
+  }
+};
+
 export default function CmsDashboard() {
+  const { language } = useLanguage();
+  const t = cmsTranslations[language] || cmsTranslations.en;
   const [activeSubTab, setActiveSubTab] = useState<"faqs" | "testimonials" | "gallery" | "products">("faqs");
   
   // FAQs States
@@ -82,20 +248,25 @@ export default function CmsDashboard() {
   const [productsLoading, setProductsLoading] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
 
+  // Pre-populate Loader State
+  const [populating, setPopulating] = useState(false);
+
   // Fetch FAQs
   const fetchFaqs = async () => {
     setFaqsLoading(true);
     try {
-      const querySnapshot = await getDocs(query(collection(db, "faqs"), orderBy("timestamp", "desc")));
-      const items: FAQ[] = [];
+      const querySnapshot = await getDocs(collection(db, "faqs"));
+      const items: any[] = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         items.push({
           id: doc.id,
           question: data.question || "",
           answer: data.answer || "",
+          timestamp: data.timestamp ? data.timestamp.toDate() : new Date(0),
         });
       });
+      items.sort((a, b) => b.timestamp - a.timestamp);
       setFaqs(items);
     } catch (err) {
       console.error("Error fetching FAQs:", err);
@@ -108,8 +279,8 @@ export default function CmsDashboard() {
   const fetchTestimonials = async () => {
     setTestimonialsLoading(true);
     try {
-      const querySnapshot = await getDocs(query(collection(db, "testimonials"), orderBy("timestamp", "desc")));
-      const items: Testimonial[] = [];
+      const querySnapshot = await getDocs(collection(db, "testimonials"));
+      const items: any[] = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         items.push({
@@ -120,8 +291,10 @@ export default function CmsDashboard() {
           rating: data.rating || 5,
           status: data.status || "pending",
           date: data.date || "Verified Reviews",
+          timestamp: data.timestamp ? data.timestamp.toDate() : new Date(0),
         });
       });
+      items.sort((a, b) => b.timestamp - a.timestamp);
       setTestimonials(items);
     } catch (err) {
       console.error("Error fetching Testimonials:", err);
@@ -134,8 +307,8 @@ export default function CmsDashboard() {
   const fetchGallery = async () => {
     setGalleryLoading(true);
     try {
-      const querySnapshot = await getDocs(query(collection(db, "gallery"), orderBy("timestamp", "desc")));
-      const items: GalleryItem[] = [];
+      const querySnapshot = await getDocs(collection(db, "gallery"));
+      const items: any[] = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         items.push({
@@ -145,8 +318,10 @@ export default function CmsDashboard() {
           image: data.image || "",
           desc: data.desc || "",
           gridRef: data.gridRef || "",
+          timestamp: data.timestamp ? data.timestamp.toDate() : new Date(0),
         });
       });
+      items.sort((a, b) => b.timestamp - a.timestamp);
       setGallery(items);
     } catch (err) {
       console.error("Error fetching Gallery:", err);
@@ -159,8 +334,8 @@ export default function CmsDashboard() {
   const fetchProducts = async () => {
     setProductsLoading(true);
     try {
-      const querySnapshot = await getDocs(query(collection(db, "products"), orderBy("timestamp", "desc")));
-      const items: ProductItem[] = [];
+      const querySnapshot = await getDocs(collection(db, "products"));
+      const items: any[] = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         items.push({
@@ -170,8 +345,10 @@ export default function CmsDashboard() {
           price: data.price || "0",
           description: data.description || "",
           features: Array.isArray(data.features) ? data.features : [],
+          timestamp: data.timestamp ? data.timestamp.toDate() : new Date(0),
         });
       });
+      items.sort((a, b) => b.timestamp - a.timestamp);
       setProducts(items);
     } catch (err) {
       console.error("Error fetching products:", err);
@@ -187,27 +364,130 @@ export default function CmsDashboard() {
     if (activeSubTab === "products") fetchProducts();
   }, [activeSubTab]);
 
+  // Pre-populate default templates into Firestore (Seeds FAQs, Products, Gallery, Testimonials, Settings, and Sample Leads)
+  const handlePrepopulate = async () => {
+    if (!confirm("This will initialize all Firestore collections (Products, Gallery, Testimonials, FAQs, Site Settings, and Sample Leads). Proceed?")) return;
+    setPopulating(true);
+    try {
+      // 1. Seed FAQs
+      for (const faq of defaultFaqs) {
+        await addDoc(collection(db, "faqs"), {
+          question: faq.question,
+          answer: faq.answer,
+          timestamp: serverTimestamp(),
+        });
+      }
+
+      // 2. Seed Gallery
+      for (const item of defaultGallery) {
+        await addDoc(collection(db, "gallery"), {
+          title: item.title,
+          location: item.location,
+          image: item.image,
+          desc: item.desc,
+          gridRef: item.gridRef,
+          timestamp: serverTimestamp(),
+        });
+      }
+
+      // 3. Seed Products (Full 6 Catalog items)
+      for (const prod of defaultProducts) {
+        await addDoc(collection(db, "products"), {
+          name: prod.name,
+          price: prod.price,
+          image: prod.image,
+          description: prod.description,
+          features: prod.features,
+          timestamp: serverTimestamp(),
+        });
+      }
+
+      // 4. Seed Testimonials (Reviews)
+      for (const t of defaultTestimonialsSeed) {
+        await addDoc(collection(db, "testimonials"), {
+          name: t.name,
+          locality: t.locality,
+          rating: t.rating,
+          text: t.text,
+          date: t.date,
+          status: t.status,
+          timestamp: serverTimestamp(),
+        });
+      }
+
+      // 5. Seed Primary Settings Document
+      await setDoc(doc(db, "settings", "primary"), {
+        phone: "+91 79815 77411",
+        whatsappNumber: "917981577411",
+        email: "info@nakshatracctv.com",
+        fullAddress: "H.No: 5-4-12, Near Clock Tower, Nalgonda, Telangana - 508001",
+        city: "Nalgonda",
+        installationsCount: "1,500+",
+        responseTime: "Within 2 Hours",
+        supportAvailability: "24/7 Support",
+        gstNumber: "36XXXXX1234F1Z5",
+        workingHours: "9:00 AM - 8:00 PM",
+        serviceAreas: ["Nalgonda", "Suryapet", "Miryalaguda", "Kodad", "Bhongir", "Nakrekal", "Devarakonda"],
+        googleMapsLink: "https://maps.google.com"
+      });
+
+      // 6. Seed Sample Leads
+      await addDoc(collection(db, "leads"), {
+        name: "Pavan Kalyan",
+        phone: "+91 99999 88888",
+        email: "pavan@example.com",
+        address: "Miryalaguda",
+        service: "CCTV Installation",
+        cameras: "4-8",
+        message: "Requesting itemized quotation for 6 outdoor security cameras with active night vision.",
+        status: "New",
+        timestamp: serverTimestamp(),
+      });
+      await addDoc(collection(db, "leads"), {
+        name: "Mahesh Babu",
+        phone: "+91 88888 77777",
+        email: "mahesh@example.com",
+        address: "Suryapet",
+        service: "CCTV Repair",
+        cameras: "1-4",
+        message: "Lobby camera shows black screen with video loss alert. Need technician repair inspection.",
+        status: "Contacted",
+        timestamp: serverTimestamp(),
+      });
+
+      alert("Firestore initialized successfully! All products, testimonials, FAQs, default site settings, and sample leads are now stored in your Firestore Database.");
+      fetchFaqs();
+      fetchGallery();
+      fetchProducts();
+    } catch (err: any) {
+      console.error(err);
+      alert(`Seed failed. Verify login credentials and network connection: ${err.message}`);
+    } finally {
+      setPopulating(false);
+    }
+  };
+
   // Add or Edit FAQ
   const handleSaveFaq = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!faqQuestion || !faqAnswer) return;
 
     try {
-      if (editingFaqId) {
-        // Edit Mode
+      if (editingFaqId && !editingFaqId.startsWith("default-")) {
+        // Edit Mode for live DB document
         await updateDoc(doc(db, "faqs", editingFaqId), {
           question: faqQuestion,
           answer: faqAnswer,
         });
-        setEditingFaqId(null);
       } else {
-        // Add Mode
+        // Add Mode (or Edit Mode for a static placeholder defaults)
         await addDoc(collection(db, "faqs"), {
           question: faqQuestion,
           answer: faqAnswer,
           timestamp: serverTimestamp(),
         });
       }
+      setEditingFaqId(null);
       setFaqQuestion("");
       setFaqAnswer("");
       fetchFaqs();
@@ -233,6 +513,10 @@ export default function CmsDashboard() {
 
   // Delete FAQ
   const handleDeleteFaq = async (id: string) => {
+    if (id.startsWith("default-")) {
+      alert("Static default templates cannot be deleted from the database.");
+      return;
+    }
     if (!confirm("Delete this FAQ item?")) return;
     try {
       await deleteDoc(doc(db, "faqs", id));
@@ -270,10 +554,9 @@ export default function CmsDashboard() {
 
   // Toggle Testimonial Approval
   const handleApproveTestimonial = async (id: string, currentStatus: "pending" | "approved") => {
-    const nextStatus = currentStatus === "pending" ? "approved" : "pending";
     try {
-      await updateDoc(doc(db, "testimonials", id), { status: nextStatus });
-      setTestimonials(testimonials.map((t) => (t.id === id ? { ...t, status: nextStatus } : t)));
+      await updateDoc(doc(db, "testimonials", id), { status: currentStatus === "pending" ? "approved" : "pending" });
+      fetchTestimonials();
     } catch (err) {
       console.error("Testimonial update status failed:", err);
     }
@@ -296,8 +579,8 @@ export default function CmsDashboard() {
     if (!galTitle || !galImage) return;
 
     try {
-      if (editingGalleryId) {
-        // Edit Mode
+      if (editingGalleryId && !editingGalleryId.startsWith("default-")) {
+        // Edit Mode for live DB document
         await updateDoc(doc(db, "gallery", editingGalleryId), {
           title: galTitle,
           location: galLocation,
@@ -305,9 +588,8 @@ export default function CmsDashboard() {
           desc: galDesc,
           gridRef: galGridRef,
         });
-        setEditingGalleryId(null);
       } else {
-        // Add Mode
+        // Add Mode (or Edit Mode for a static placeholder defaults)
         await addDoc(collection(db, "gallery"), {
           title: galTitle,
           location: galLocation || "Nalgonda",
@@ -317,6 +599,7 @@ export default function CmsDashboard() {
           timestamp: serverTimestamp(),
         });
       }
+      setEditingGalleryId(null);
       setGalTitle("");
       setGalLocation("");
       setGalImage("");
@@ -351,6 +634,10 @@ export default function CmsDashboard() {
 
   // Delete Gallery item
   const handleDeleteGallery = async (id: string) => {
+    if (id.startsWith("default-")) {
+      alert("Static default templates cannot be deleted from the database.");
+      return;
+    }
     if (!confirm("Delete this gallery photo record?")) return;
     try {
       await deleteDoc(doc(db, "gallery", id));
@@ -369,8 +656,8 @@ export default function CmsDashboard() {
     const features = prodFeaturesRaw.split(",").map((f) => f.trim()).filter(Boolean);
 
     try {
-      if (editingProductId) {
-        // Edit Mode
+      if (editingProductId && !editingProductId.startsWith("default-")) {
+        // Edit Mode for live DB document
         await updateDoc(doc(db, "products", editingProductId), {
           name: prodName,
           price: prodPrice,
@@ -378,9 +665,8 @@ export default function CmsDashboard() {
           description: prodDesc,
           features: features,
         });
-        setEditingProductId(null);
       } else {
-        // Add Mode
+        // Add Mode (or Edit Mode for a static placeholder defaults)
         await addDoc(collection(db, "products"), {
           name: prodName,
           price: prodPrice,
@@ -390,6 +676,7 @@ export default function CmsDashboard() {
           timestamp: serverTimestamp(),
         });
       }
+      setEditingProductId(null);
       setProdName("");
       setProdPrice("");
       setProdImage("");
@@ -424,6 +711,10 @@ export default function CmsDashboard() {
 
   // Delete Hardware Product item
   const handleDeleteProduct = async (id: string) => {
+    if (id.startsWith("default-")) {
+      alert("Static default templates cannot be deleted from the database.");
+      return;
+    }
     if (!confirm("Delete this hardware product record from inventory?")) return;
     try {
       await deleteDoc(doc(db, "products", id));
@@ -434,55 +725,74 @@ export default function CmsDashboard() {
     }
   };
 
+  // Compute displayed elements (inject defaults if DB collections are empty)
+  const displayedFaqs = faqs.length > 0 ? faqs : defaultFaqs;
+  const displayedGallery = gallery.length > 0 ? gallery : defaultGallery;
+  const displayedProducts = products.length > 0 ? products : defaultProducts;
+
+  const showInitializeBanner = faqs.length === 0 || gallery.length === 0 || products.length === 0;
+
   return (
     <div className="space-y-8">
       {/* Page Header */}
-      <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold font-heading text-white">Content CMS</h1>
-        <p className="text-xs text-[#94A3B8] mt-1">Manage, add, and edit database records for landing page FAQs, reviews, gallery photos, and products.</p>
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-extrabold font-heading text-text-primary">{t.title}</h1>
+          <p className="text-xs text-text-secondary mt-1">{t.subtitle}</p>
+        </div>
+        {showInitializeBanner && (
+          <button
+            onClick={handlePrepopulate}
+            disabled={populating}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-accent/20 hover:bg-accent/30 border border-accent/40 text-accent text-xs font-bold transition cursor-pointer disabled:opacity-50 disabled:pointer-events-none self-start"
+          >
+            <Database className="h-4 w-4" />
+            <span>{populating ? t.populating : t.initDb}</span>
+          </button>
+        )}
       </div>
 
       {/* Selector Subtabs */}
-      <div className="flex flex-wrap gap-2 border-b border-white/10 pb-4">
+      <div className="flex flex-wrap gap-2 border-b border-border-custom pb-4">
         <button
           onClick={() => setActiveSubTab("faqs")}
           className={`px-5 py-2.5 rounded-lg text-xs font-semibold transition ${
             activeSubTab === "faqs"
               ? "bg-accent text-white"
-              : "bg-white/5 hover:bg-white/10 text-[#94A3B8] hover:text-white"
+              : "bg-bg-secondary/40 hover:bg-bg-secondary/60 text-text-secondary hover:text-text-primary"
           }`}
         >
-          Frequently Asked Questions (FAQs)
+          {t.faqsTab}
         </button>
         <button
           onClick={() => setActiveSubTab("testimonials")}
           className={`px-5 py-2.5 rounded-lg text-xs font-semibold transition ${
             activeSubTab === "testimonials"
               ? "bg-accent text-white"
-              : "bg-white/5 hover:bg-white/10 text-[#94A3B8] hover:text-white"
+              : "bg-bg-secondary/40 hover:bg-bg-secondary/60 text-text-secondary hover:text-text-primary"
           }`}
         >
-          Customer Reviews
+          {t.reviewsTab}
         </button>
         <button
           onClick={() => setActiveSubTab("gallery")}
           className={`px-5 py-2.5 rounded-lg text-xs font-semibold transition ${
             activeSubTab === "gallery"
               ? "bg-accent text-white"
-              : "bg-white/5 hover:bg-white/10 text-[#94A3B8] hover:text-white"
+              : "bg-bg-secondary/40 hover:bg-bg-secondary/60 text-text-secondary hover:text-text-primary"
           }`}
         >
-          Gallery Photos
+          {t.galleryTab}
         </button>
         <button
           onClick={() => setActiveSubTab("products")}
           className={`px-5 py-2.5 rounded-lg text-xs font-semibold transition ${
             activeSubTab === "products"
               ? "bg-accent text-white"
-              : "bg-white/5 hover:bg-white/10 text-[#94A3B8] hover:text-white"
+              : "bg-bg-secondary/40 hover:bg-bg-secondary/60 text-text-secondary hover:text-text-primary"
           }`}
         >
-          Hardware Products
+          {t.productsTab}
         </button>
       </div>
 
@@ -490,48 +800,53 @@ export default function CmsDashboard() {
       {activeSubTab === "faqs" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* FAQ Form */}
-          <div className="lg:col-span-4 bg-white/3 border border-white/10 rounded-xl p-5 space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-white border-b border-white/5 pb-2">
-              {editingFaqId ? "Edit FAQ Item" : "Add New FAQ"}
+          <div className="lg:col-span-4 bg-bg-secondary/20 border border-border-custom rounded-xl p-5 space-y-4">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-text-primary border-b border-border-custom/50 pb-2">
+              {editingFaqId 
+                ? editingFaqId.startsWith("default-") 
+                  ? "Edit Template FAQ (Saves as Live DB Post)" 
+                  : "Edit FAQ Item" 
+                : "Add New FAQ"
+              }
             </h2>
             <form onSubmit={handleSaveFaq} className="space-y-4 text-xs">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Question</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Question</label>
                 <input
                   type="text"
                   required
                   value={faqQuestion}
                   onChange={(e) => setFaqQuestion(e.target.value)}
                   placeholder="e.g. Do you support wireless camera connections?"
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                  className="w-full px-3 py-2 bg-bg-primary border border-border-custom rounded text-text-primary focus:outline-none focus:border-accent"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Answer Description</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Answer Description</label>
                 <textarea
                   required
                   rows={4}
                   value={faqAnswer}
                   onChange={(e) => setFaqAnswer(e.target.value)}
                   placeholder="Provide a detailed solution or policy answer..."
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent resize-none"
+                  className="w-full px-3 py-2 bg-bg-primary border border-border-custom rounded text-text-primary focus:outline-none focus:border-accent resize-none"
                 />
               </div>
 
               <div className="flex gap-2">
                 <button
                   type="submit"
-                  className="flex-1 py-2 bg-accent hover:bg-accent-glow text-white font-semibold rounded flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  className="flex-1 py-2 bg-accent hover:bg-accent-glow text-text-primary font-semibold rounded flex items-center justify-center gap-1.5 transition cursor-pointer"
                 >
                   {editingFaqId ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-                  <span>{editingFaqId ? "Update FAQ" : "Save FAQ Item"}</span>
+                  <span>{editingFaqId ? editingFaqId.startsWith("default-") ? "Save as Live FAQ" : "Update FAQ" : "Save FAQ Item"}</span>
                 </button>
                 {editingFaqId && (
                   <button
                     type="button"
                     onClick={cancelEditFaq}
-                    className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white font-semibold rounded transition cursor-pointer"
+                    className="px-3 py-2 bg-white/10 hover:bg-white/20 text-text-primary font-semibold rounded transition cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -542,41 +857,45 @@ export default function CmsDashboard() {
 
           {/* FAQ Listing */}
           <div className="lg:col-span-8 space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-white">Active FAQ Overrides</h2>
+            <div className="flex justify-between items-center">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-text-primary">Active FAQ Overrides</h2>
+              {faqs.length === 0 && (
+                <span className="text-[9px] uppercase tracking-wider font-bold bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded animate-pulse">
+                  Showing Default Templates
+                </span>
+              )}
+            </div>
             {faqsLoading ? (
-              <div className="p-10 flex flex-col items-center justify-center bg-white/3 border border-white/10 rounded-xl">
+              <div className="p-10 flex flex-col items-center justify-center bg-bg-secondary/20 border border-border-custom rounded-xl">
                 <div className="h-6 w-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
               </div>
-            ) : faqs.length === 0 ? (
-              <p className="text-xs text-[#94A3B8] italic p-6 bg-white/3 border border-white/10 rounded-xl">
-                No custom FAQs found in Firestore. Default fallback queries will render on the landing page.
-              </p>
             ) : (
               <div className="space-y-3">
-                {faqs.map((faq) => (
+                {displayedFaqs.map((faq) => (
                   <div
                     key={faq.id}
                     className={`p-4 border rounded-lg flex items-start justify-between gap-4 transition duration-300 ${
                       editingFaqId === faq.id 
                         ? "border-accent bg-accent/5" 
-                        : "bg-white/3 border-white/10"
+                        : "bg-bg-secondary/20 border-border-custom"
                     }`}
                   >
                     <div className="space-y-1">
-                      <h4 className="text-sm font-bold text-white leading-tight">{faq.question}</h4>
-                      <p className="text-xs text-[#94A3B8] leading-relaxed">{faq.answer}</p>
+                      <h4 className="text-sm font-bold text-text-primary leading-tight">{faq.question}</h4>
+                      <p className="text-xs text-text-secondary leading-relaxed">{faq.answer}</p>
                     </div>
                     <div className="flex gap-1.5 shrink-0">
                       <button
                         onClick={() => startEditFaq(faq)}
-                        className="p-2 border border-white/10 bg-white/5 hover:bg-white/10 text-white rounded transition cursor-pointer"
+                        className="p-2 border border-border-custom bg-bg-secondary/40 hover:bg-bg-secondary/60 text-text-primary rounded transition cursor-pointer"
                         title="Edit FAQ"
                       >
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={() => handleDeleteFaq(faq.id)}
-                        className="p-2 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 rounded transition cursor-pointer"
+                        disabled={faq.id.startsWith("default-")}
+                        className="p-2 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 rounded transition cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
                         title="Delete FAQ"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -594,38 +913,38 @@ export default function CmsDashboard() {
       {activeSubTab === "testimonials" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Testimonial Add Form */}
-          <div className="lg:col-span-4 bg-white/3 border border-white/10 rounded-xl p-5 space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-white border-b border-white/5 pb-2">Add Review</h2>
+          <div className="lg:col-span-4 bg-bg-secondary/20 border border-border-custom rounded-xl p-5 space-y-4">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-text-primary border-b border-border-custom/50 pb-2">Add Review</h2>
             <form onSubmit={handleAddTestimonial} className="space-y-4 text-xs">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Client Name</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Client Name</label>
                 <input
                   type="text"
                   required
                   value={testName}
                   onChange={(e) => setTestName(e.target.value)}
                   placeholder="e.g. Ramesh Reddy"
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                  className="w-full px-3 py-2 bg-bg-primary border border-border-custom rounded text-text-primary focus:outline-none focus:border-accent"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Locality / Suburb</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Locality / Suburb</label>
                 <input
                   type="text"
                   value={testLocality}
                   onChange={(e) => setTestLocality(e.target.value)}
                   placeholder="e.g. Nalgonda"
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                  className="w-full px-3 py-2 bg-bg-primary border border-border-custom rounded text-text-primary focus:outline-none focus:border-accent"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Rating Stars</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Rating Stars</label>
                 <select
                   value={testRating}
                   onChange={(e) => setTestRating(Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent appearance-none cursor-pointer"
+                  className="w-full px-3 py-2 bg-bg-primary border border-border-custom rounded text-text-primary focus:outline-none focus:border-accent appearance-none cursor-pointer"
                 >
                   <option value={5}>5 Stars (Excellent)</option>
                   <option value={4}>4 Stars (Good)</option>
@@ -634,20 +953,20 @@ export default function CmsDashboard() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Feedback Description</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Feedback Description</label>
                 <textarea
                   required
                   rows={4}
                   value={testText}
                   onChange={(e) => setTestText(e.target.value)}
                   placeholder="Quote the client's actual feedback details..."
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent resize-none"
+                  className="w-full px-3 py-2 bg-bg-primary border border-border-custom rounded text-text-primary focus:outline-none focus:border-accent resize-none"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-2 bg-accent hover:bg-accent-glow text-white font-semibold rounded flex items-center justify-center gap-1.5 transition cursor-pointer"
+                className="w-full py-2 bg-accent hover:bg-accent-glow text-text-primary font-semibold rounded flex items-center justify-center gap-1.5 transition cursor-pointer"
               >
                 <Plus className="h-4 w-4" />
                 <span>Save Review</span>
@@ -657,13 +976,13 @@ export default function CmsDashboard() {
 
           {/* Testimonial Listing */}
           <div className="lg:col-span-8 space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-white">Customer Reviews Overrides</h2>
+            <h2 className="text-sm font-bold uppercase tracking-wider text-text-primary">Customer Reviews Overrides</h2>
             {testimonialsLoading ? (
-              <div className="p-10 flex flex-col items-center justify-center bg-white/3 border border-white/10 rounded-xl">
+              <div className="p-10 flex flex-col items-center justify-center bg-bg-secondary/20 border border-border-custom rounded-xl">
                 <div className="h-6 w-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
               </div>
             ) : testimonials.length === 0 ? (
-              <p className="text-xs text-[#94A3B8] italic p-6 bg-white/3 border border-white/10 rounded-xl">
+              <p className="text-xs text-text-secondary italic p-6 bg-bg-secondary/20 border border-border-custom rounded-xl">
                 No custom testimonials found. The landing page will automatically render pre-filled Google sample reviews.
               </p>
             ) : (
@@ -671,7 +990,7 @@ export default function CmsDashboard() {
                 {testimonials.map((t) => (
                   <div
                     key={t.id}
-                    className="p-4 bg-white/3 border border-white/10 rounded-lg flex items-start justify-between gap-4"
+                    className="p-4 bg-bg-secondary/20 border border-border-custom rounded-lg flex items-start justify-between gap-4"
                   >
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
@@ -689,10 +1008,10 @@ export default function CmsDashboard() {
                         </div>
                       </div>
                       
-                      <p className="text-xs text-white leading-relaxed italic">&ldquo;{t.text}&rdquo;</p>
+                      <p className="text-xs text-text-primary leading-relaxed italic">&ldquo;{t.text}&rdquo;</p>
                       
-                      <div className="text-[10px] text-[#94A3B8]">
-                        <span className="font-bold text-white/70">{t.name}</span> • {t.locality} • {t.date}
+                      <div className="text-[10px] text-text-secondary">
+                        <span className="font-bold text-text-primary/70">{t.name}</span> • {t.locality} • {t.date}
                       </div>
                     </div>
 
@@ -731,84 +1050,89 @@ export default function CmsDashboard() {
       {activeSubTab === "gallery" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Gallery Form */}
-          <div className="lg:col-span-4 bg-white/3 border border-white/10 rounded-xl p-5 space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-white border-b border-white/5 pb-2">
-              {editingGalleryId ? "Edit Installation Photo" : "Add Installation Photo"}
+          <div className="lg:col-span-4 bg-bg-secondary/20 border border-border-custom rounded-xl p-5 space-y-4">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-text-primary border-b border-border-custom/50 pb-2">
+              {editingGalleryId 
+                ? editingGalleryId.startsWith("default-") 
+                  ? "Edit Template Image (Saves as Live DB Post)"
+                  : "Edit Installation Photo" 
+                : "Add Installation Photo"
+              }
             </h2>
             <form onSubmit={handleSaveGallery} className="space-y-4 text-xs">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Project Title</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Project Title</label>
                 <input
                   type="text"
                   required
                   value={galTitle}
                   onChange={(e) => setGalTitle(e.target.value)}
                   placeholder="e.g. Retail Counter Security Setup"
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                  className="w-full px-3 py-2 bg-bg-primary border border-border-custom rounded text-text-primary focus:outline-none focus:border-accent"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Locality / Suburb</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Locality / Suburb</label>
                 <input
                   type="text"
                   required
                   value={galLocation}
                   onChange={(e) => setGalLocation(e.target.value)}
                   placeholder="e.g. Miryalaguda"
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                  className="w-full px-3 py-2 bg-bg-primary border border-border-custom rounded text-text-primary focus:outline-none focus:border-accent"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Image URL / Path</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Image URL / Path</label>
                 <input
                   type="text"
                   required
                   value={galImage}
                   onChange={(e) => setGalImage(e.target.value)}
                   placeholder="e.g. /images/cctv-lobby.png"
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent font-sans"
+                  className="w-full px-3 py-2 bg-bg-primary border border-border-custom rounded text-text-primary focus:outline-none focus:border-accent font-sans"
                 />
-                <span className="block text-[9px] text-[#94A3B8] font-bold uppercase tracking-wider">Or upload file directly:</span>
+                <span className="block text-[9px] text-text-secondary font-bold uppercase tracking-wider">Or upload file directly:</span>
                 <ImageUploader onUploadComplete={(url) => setGalImage(url)} folder="gallery" />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Grid Reference / Telemetry Code</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Grid Reference / Telemetry Code</label>
                 <input
                   type="text"
                   value={galGridRef}
                   onChange={(e) => setGalGridRef(e.target.value)}
                   placeholder="e.g. SEC_LOBBY_01 (optional)"
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                  className="w-full px-3 py-2 bg-bg-primary border border-border-custom rounded text-text-primary focus:outline-none focus:border-accent"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Project Description</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Project Description</label>
                 <textarea
                   rows={3}
                   value={galDesc}
                   onChange={(e) => setGalDesc(e.target.value)}
                   placeholder="Description of camera type, resolution, NVR configurations used..."
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent resize-none"
+                  className="w-full px-3 py-2 bg-bg-primary border border-border-custom rounded text-text-primary focus:outline-none focus:border-accent resize-none"
                 />
               </div>
 
               <div className="flex gap-2">
                 <button
                   type="submit"
-                  className="flex-grow py-2 bg-accent hover:bg-accent-glow text-white font-semibold rounded flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  className="flex-grow py-2 bg-accent hover:bg-accent-glow text-text-primary font-semibold rounded flex items-center justify-center gap-1.5 transition cursor-pointer"
                 >
                   {editingGalleryId ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-                  <span>{editingGalleryId ? "Update Photo" : "Save Gallery Photo"}</span>
+                  <span>{editingGalleryId ? editingGalleryId.startsWith("default-") ? "Save as Live Photo" : "Update Photo" : "Save Gallery Photo"}</span>
                 </button>
                 {editingGalleryId && (
                   <button
                     type="button"
                     onClick={cancelEditGallery}
-                    className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white font-semibold rounded transition cursor-pointer"
+                    className="px-3 py-2 bg-white/10 hover:bg-white/20 text-text-primary font-semibold rounded transition cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -819,24 +1143,27 @@ export default function CmsDashboard() {
 
           {/* Gallery Listing */}
           <div className="lg:col-span-8 space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-white">Active Gallery Photos</h2>
+            <div className="flex justify-between items-center">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-text-primary">Active Gallery Photos</h2>
+              {gallery.length === 0 && (
+                <span className="text-[9px] uppercase tracking-wider font-bold bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded animate-pulse">
+                  Showing Default Templates
+                </span>
+              )}
+            </div>
             {galleryLoading ? (
-              <div className="p-10 flex flex-col items-center justify-center bg-white/3 border border-white/10 rounded-xl">
+              <div className="p-10 flex flex-col items-center justify-center bg-bg-secondary/20 border border-border-custom rounded-xl">
                 <div className="h-6 w-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
               </div>
-            ) : gallery.length === 0 ? (
-              <p className="text-xs text-[#94A3B8] italic p-6 bg-white/3 border border-white/10 rounded-xl">
-                No custom gallery photos found in database. Pre-filled installation mocks will display on page.
-              </p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {gallery.map((item) => (
+                {displayedGallery.map((item) => (
                   <div
                     key={item.id}
-                    className={`bg-white/3 border rounded-xl overflow-hidden flex flex-col justify-between transition duration-300 ${
+                    className={`bg-bg-secondary/20 border rounded-xl overflow-hidden flex flex-col justify-between transition duration-300 ${
                       editingGalleryId === item.id 
                         ? "border-accent ring-1 ring-accent" 
-                        : "border-white/10"
+                        : "border-border-custom"
                     }`}
                   >
                     <div className="relative w-full h-[150px] bg-bg-primary">
@@ -851,27 +1178,28 @@ export default function CmsDashboard() {
                       <div className="space-y-1">
                         <div className="flex justify-between items-center text-[9px] font-bold font-mono text-accent">
                           <span>{item.location}</span>
-                          <span className="text-[#94A3B8]">{item.gridRef}</span>
+                          <span className="text-text-secondary">{item.gridRef}</span>
                         </div>
-                        <h4 className="text-xs font-bold text-white tracking-wide leading-snug font-heading">
+                        <h4 className="text-xs font-bold text-text-primary tracking-wide leading-snug font-heading">
                           {item.title}
                         </h4>
-                        <p className="text-[10px] text-[#94A3B8] leading-relaxed line-clamp-2">
+                        <p className="text-[10px] text-text-secondary leading-relaxed line-clamp-2">
                           {item.desc}
                         </p>
                       </div>
 
-                      <div className="pt-3 border-t border-white/5 flex justify-end gap-2">
+                      <div className="pt-3 border-t border-border-custom/50 flex justify-end gap-2">
                         <button
                           onClick={() => startEditGallery(item)}
-                          className="p-2 border border-white/10 bg-white/5 hover:bg-white/10 text-white rounded transition flex items-center gap-1 text-[10px] font-bold cursor-pointer"
+                          className="p-2 border border-border-custom bg-bg-secondary/40 hover:bg-bg-secondary/60 text-text-primary rounded transition flex items-center gap-1 text-[10px] font-bold cursor-pointer"
                         >
                           <Pencil className="h-3.5 w-3.5 text-accent" />
                           <span>Edit</span>
                         </button>
                         <button
                           onClick={() => handleDeleteGallery(item.id)}
-                          className="p-2 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 rounded transition flex items-center gap-1 text-[10px] font-bold cursor-pointer"
+                          disabled={item.id.startsWith("default-")}
+                          className="p-2 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 rounded transition flex items-center gap-1 text-[10px] font-bold cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           <span>Delete</span>
@@ -890,85 +1218,90 @@ export default function CmsDashboard() {
       {activeSubTab === "products" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Product Form */}
-          <div className="lg:col-span-4 bg-white/3 border border-white/10 rounded-xl p-5 space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-white border-b border-white/5 pb-2">
-              {editingProductId ? "Edit Hardware Product" : "Add Hardware Product"}
+          <div className="lg:col-span-4 bg-bg-secondary/20 border border-border-custom rounded-xl p-5 space-y-4">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-text-primary border-b border-border-custom/50 pb-2">
+              {editingProductId 
+                ? editingProductId.startsWith("default-") 
+                  ? "Edit Template Product (Saves as Live DB Post)"
+                  : "Edit Hardware Product" 
+                : "Add Hardware Product"
+              }
             </h2>
             <form onSubmit={handleSaveProduct} className="space-y-4 text-xs">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Product Name</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Product Name</label>
                 <input
                   type="text"
                   required
                   value={prodName}
                   onChange={(e) => setProdName(e.target.value)}
                   placeholder="e.g. 5MP Full-Color Dome Camera"
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                  className="w-full px-3 py-2 bg-bg-primary border border-border-custom rounded text-text-primary focus:outline-none focus:border-accent"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Starting Price (INR, no symbols)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Starting Price (INR, no symbols)</label>
                 <input
                   type="text"
                   required
                   value={prodPrice}
                   onChange={(e) => setProdPrice(e.target.value)}
                   placeholder="e.g. 2,499"
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                  className="w-full px-3 py-2 bg-bg-primary border border-border-custom rounded text-text-primary focus:outline-none focus:border-accent"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Image URL / Path</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Image URL / Path</label>
                 <input
                   type="text"
                   required
                   value={prodImage}
                   onChange={(e) => setProdImage(e.target.value)}
                   placeholder="e.g. /images/dome-camera.png"
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent font-sans"
+                  className="w-full px-3 py-2 bg-bg-primary border border-border-custom rounded text-text-primary focus:outline-none focus:border-accent font-sans"
                 />
-                <span className="block text-[9px] text-[#94A3B8] font-bold uppercase tracking-wider">Or upload file directly:</span>
+                <span className="block text-[9px] text-text-secondary font-bold uppercase tracking-wider">Or upload file directly:</span>
                 <ImageUploader onUploadComplete={(url) => setProdImage(url)} folder="products" />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Key Features (Comma separated)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Key Features (Comma separated)</label>
                 <input
                   type="text"
                   value={prodFeaturesRaw}
                   onChange={(e) => setProdFeaturesRaw(e.target.value)}
                   placeholder="e.g. Smart Night Vision, AI Face Tracking, Weatherproof"
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent"
+                  className="w-full px-3 py-2 bg-bg-primary border border-border-custom rounded text-text-primary focus:outline-none focus:border-accent"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Product Description</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Product Description</label>
                 <textarea
                   required
                   rows={3}
                   value={prodDesc}
                   onChange={(e) => setProdDesc(e.target.value)}
                   placeholder="Provide detailed description of sensor specs, optics, night range, and compatibility..."
-                  className="w-full px-3 py-2 bg-[#0B1220] border border-white/10 rounded text-white focus:outline-none focus:border-accent resize-none"
+                  className="w-full px-3 py-2 bg-bg-primary border border-border-custom rounded text-text-primary focus:outline-none focus:border-accent resize-none"
                 />
               </div>
 
               <div className="flex gap-2">
                 <button
                   type="submit"
-                  className="flex-grow py-2 bg-accent hover:bg-accent-glow text-white font-semibold rounded flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  className="flex-grow py-2 bg-accent hover:bg-accent-glow text-text-primary font-semibold rounded flex items-center justify-center gap-1.5 transition cursor-pointer"
                 >
                   {editingProductId ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-                  <span>{editingProductId ? "Update Product" : "Save Hardware Product"}</span>
+                  <span>{editingProductId ? editingProductId.startsWith("default-") ? "Save as Live Product" : "Update Product" : "Save Hardware Product"}</span>
                 </button>
                 {editingProductId && (
                   <button
                     type="button"
                     onClick={cancelEditProduct}
-                    className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white font-semibold rounded transition cursor-pointer"
+                    className="px-3 py-2 bg-white/10 hover:bg-white/20 text-text-primary font-semibold rounded transition cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -979,24 +1312,27 @@ export default function CmsDashboard() {
 
           {/* Product Listing */}
           <div className="lg:col-span-8 space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-white">Active Product Catalog</h2>
+            <div className="flex justify-between items-center">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-text-primary">Active Product Catalog</h2>
+              {products.length === 0 && (
+                <span className="text-[9px] uppercase tracking-wider font-bold bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded animate-pulse">
+                  Showing Default Templates
+                </span>
+              )}
+            </div>
             {productsLoading ? (
-              <div className="p-10 flex flex-col items-center justify-center bg-white/3 border border-white/10 rounded-xl">
+              <div className="p-10 flex flex-col items-center justify-center bg-bg-secondary/20 border border-border-custom rounded-xl">
                 <div className="h-6 w-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
               </div>
-            ) : products.length === 0 ? (
-              <p className="text-xs text-[#94A3B8] italic p-6 bg-white/3 border border-white/10 rounded-xl">
-                No custom products found in database. Pre-filled catalog list will display on landing page.
-              </p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {products.map((item) => (
+                {displayedProducts.map((item) => (
                   <div
                     key={item.id}
-                    className={`bg-white/3 border rounded-xl overflow-hidden flex flex-col justify-between transition duration-300 ${
+                    className={`bg-bg-secondary/20 border rounded-xl overflow-hidden flex flex-col justify-between transition duration-300 ${
                       editingProductId === item.id 
                         ? "border-accent ring-1 ring-accent" 
-                        : "border-white/10"
+                        : "border-border-custom"
                     }`}
                   >
                     <div className="relative w-full h-[140px] bg-bg-primary">
@@ -1012,25 +1348,26 @@ export default function CmsDashboard() {
                         <div className="flex justify-between items-center text-[10px] font-bold text-accent">
                           <span>Starting at ₹{item.price}</span>
                         </div>
-                        <h4 className="text-xs font-bold text-white tracking-wide font-heading">
+                        <h4 className="text-xs font-bold text-text-primary tracking-wide font-heading">
                           {item.name}
                         </h4>
-                        <p className="text-[10px] text-[#94A3B8] leading-relaxed line-clamp-3">
+                        <p className="text-[10px] text-text-secondary leading-relaxed line-clamp-3">
                           {item.description}
                         </p>
                       </div>
 
-                      <div className="pt-3 border-t border-white/5 flex justify-end gap-2">
+                      <div className="pt-3 border-t border-border-custom/50 flex justify-end gap-2">
                         <button
                           onClick={() => startEditProduct(item)}
-                          className="p-2 border border-white/10 bg-white/5 hover:bg-white/10 text-white rounded transition flex items-center gap-1 text-[10px] font-bold cursor-pointer"
+                          className="p-2 border border-border-custom bg-bg-secondary/40 hover:bg-bg-secondary/60 text-text-primary rounded transition flex items-center gap-1 text-[10px] font-bold cursor-pointer"
                         >
-                          <Pencil className="h-3.5 w-3.5 text-accent" />
+                          <Pencil className="h-3.5 w-3.5" />
                           <span>Edit</span>
                         </button>
                         <button
                           onClick={() => handleDeleteProduct(item.id)}
-                          className="p-2 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 rounded transition flex items-center gap-1 text-[10px] font-bold cursor-pointer"
+                          disabled={item.id.startsWith("default-")}
+                          className="p-2 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 rounded transition flex items-center gap-1 text-[10px] font-bold cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           <span>Delete</span>
@@ -1056,63 +1393,74 @@ function ImageUploader({
   onUploadComplete: (url: string) => void;
   folder?: string;
 }) {
-  const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [preview, setPreview] = useState<string | null>(null);
 
-  const handleUpload = () => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
+
     setUploading(true);
     setError("");
-    setProgress(0);
+    setProgress(10);
 
-    const storageRef = ref(storage, `${folder}/${Date.now()}_${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    // 1. Render thumbnail preview locally immediately
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
 
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const percent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-        setProgress(percent);
-      },
-      (err) => {
-        console.error("Upload error:", err);
-        setError("Upload failed. Verify storage bucket permissions in Firebase console.");
-        setUploading(false);
-      },
-      async () => {
-        try {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          onUploadComplete(downloadURL);
-          setUploading(false);
-          setFile(null);
-          setProgress(0);
-        } catch (e) {
-          setError("Failed to retrieve image URL.");
-          setUploading(false);
-        }
+    try {
+      // 2. Prepare Form payload
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Simulate loading increments
+      const progressInterval = setInterval(() => {
+        setProgress((prev) => (prev < 85 ? prev + 15 : prev));
+      }, 100);
+
+      // 3. Post to api upload route handler
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      clearInterval(progressInterval);
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "CDN Upload failed.");
       }
-    );
+
+      const result = await res.json();
+      setProgress(100);
+      onUploadComplete(result.url); // secure_url returned by Cloudinary
+      setUploading(false);
+    } catch (err: any) {
+      console.error("Cloudinary upload failed:", err);
+      setError(err.message || "Failed to upload image. Please try again.");
+      setUploading(false);
+    }
   };
 
   return (
-    <div className="space-y-2 border border-white/10 p-3 rounded bg-[#0B1220] text-xs">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 justify-between">
+    <div className="space-y-2 border border-border-custom p-3 rounded bg-bg-primary text-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
         <input 
           type="file" 
           accept="image/*"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
-          className="text-[10px] text-[#94A3B8] file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20 cursor-pointer max-w-full"
+          onChange={handleFileChange}
+          className="text-[10px] text-text-secondary file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-semibold file:bg-white/10 file:text-text-primary hover:file:bg-white/20 cursor-pointer max-w-full"
         />
-        {file && !uploading && (
-          <button 
-            type="button" 
-            onClick={handleUpload}
-            className="px-3 py-1 bg-accent hover:bg-accent-glow text-white text-[10px] rounded font-bold cursor-pointer transition shrink-0"
-          >
-            Upload
-          </button>
+        {preview && (
+          <div className="h-8 w-8 rounded overflow-hidden border border-border-custom shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={preview} alt="Preview" className="h-full w-full object-cover" />
+          </div>
         )}
       </div>
       {uploading && (
@@ -1120,7 +1468,7 @@ function ImageUploader({
           <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
             <div className="bg-accent h-full transition-all duration-300" style={{ width: `${progress}%` }} />
           </div>
-          <span className="text-[9px] text-[#94A3B8] block">Uploading: {progress}%</span>
+          <span className="text-[9px] text-text-secondary block">Processing: {progress}%</span>
         </div>
       )}
       {error && <span className="text-[10px] text-red-400 block">{error}</span>}

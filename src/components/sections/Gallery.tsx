@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef, MouseEvent, TouchEvent } from "react";
-import Image from "next/image";
 import { Eye, X, MoveHorizontal, Camera } from "lucide-react";
 import { collection, query, getDocs, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -15,41 +14,6 @@ type GalleryItem = {
   gridRef: string;
 };
 
-const defaultGalleryItems: GalleryItem[] = [
-  {
-    id: "proj-1",
-    title: "Corporate Lobby Surveillance",
-    location: "Nalgonda",
-    image: "/images/cctv-lobby.png",
-    desc: "Discrete ceiling dome camera installation offering 360-degree high-definition coverage of the main lobby entry.",
-    gridRef: "SEC_LOBBY_01",
-  },
-  {
-    id: "proj-2",
-    title: "Residential Villa Camera Layout",
-    location: "Suryapet",
-    image: "/images/service-cctv-install.png",
-    desc: "Premium outdoor weatherproof bullet cameras positioned to cover perimeter gates, driveways, and backyards.",
-    gridRef: "PER_VILLA_04",
-  },
-  {
-    id: "proj-3",
-    title: "Retail Store Checkout Monitoring",
-    location: "Miryalaguda",
-    image: "/images/dome-camera.png",
-    desc: "High-resolution dome camera pointed directly at cash counters to track transaction audits and prevent shrinkage.",
-    gridRef: "POS_MONITOR_02",
-  },
-  {
-    id: "proj-4",
-    title: "Warehouse High-Bay Patrol",
-    location: "Nakrekal",
-    image: "/images/nvr.png",
-    desc: "Long-range optical zoom PTZ dome mounted on a high ceiling beam to monitor structural pathways and inventory aisles.",
-    gridRef: "WAR_RACK_09",
-  },
-];
-
 export default function Gallery() {
   // Before / After Slider State
   const [sliderPosition, setSliderPosition] = useState(50); // percentage (0 - 100)
@@ -57,7 +21,7 @@ export default function Gallery() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Gallery dynamic state
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(defaultGalleryItems);
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Lightbox State
@@ -66,9 +30,9 @@ export default function Gallery() {
   useEffect(() => {
     const fetchGallery = async () => {
       try {
-        const q = query(collection(db, "gallery"), orderBy("timestamp", "desc"));
+        const q = query(collection(db, "gallery"));
         const querySnapshot = await getDocs(q);
-        const items: GalleryItem[] = [];
+        const items: any[] = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           items.push({
@@ -78,11 +42,11 @@ export default function Gallery() {
             image: data.image || "",
             desc: data.desc || "",
             gridRef: data.gridRef || "",
+            timestamp: data.timestamp ? data.timestamp.toDate() : new Date(0),
           });
         });
-        if (items.length > 0) {
-          setGalleryItems(items);
-        }
+        items.sort((a, b) => b.timestamp - a.timestamp);
+        setGalleryItems(items);
       } catch (err) {
         console.error("Error fetching gallery from Firestore:", err);
       } finally {
@@ -113,6 +77,18 @@ export default function Gallery() {
       handleMove(e.touches[0].clientX);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="w-full py-16 flex justify-center items-center bg-bg-primary">
+        <div className="h-6 w-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (galleryItems.length === 0) {
+    return null;
+  }
 
   return (
     <section id="gallery" className="w-full py-16 md:py-24 bg-bg-primary overflow-hidden surveillance-grid border-b border-border-custom/30">
@@ -164,12 +140,11 @@ export default function Gallery() {
 
             {/* Before Image (Messy) */}
             <div className="absolute inset-0 w-full h-full">
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src="/images/cctv-before.png"
                 alt="Messy analog CCTV coaxial wiring before makeover"
-                fill
-                sizes="(max-width: 768px) 100vw, 800px"
-                className="object-cover"
+                className="w-full h-full object-cover"
               />
               <span className="absolute bottom-4 left-4 z-10 px-2.5 py-1 rounded bg-black/80 border border-white/10 text-[9px] font-bold text-white uppercase font-mono tracking-wider">
                 INPUT: COAXIAL_CHAOS
@@ -183,12 +158,11 @@ export default function Gallery() {
             >
               <div className="absolute inset-0 w-full h-full min-w-full">
                 <div className="relative w-full h-full" style={{ width: containerRef.current?.getBoundingClientRect().width || 800 }}>
-                  <Image
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
                     src="/images/cctv-after.png"
                     alt="Neat Cat6 conduit routing after professional makeover"
-                    fill
-                    sizes="(max-width: 768px) 100vw, 800px"
-                    className="object-cover"
+                    className="w-full h-full object-cover"
                   />
                 </div>
               </div>
@@ -229,12 +203,11 @@ export default function Gallery() {
                   className="group glass-card overflow-hidden hover:border-accent/40 hover:-translate-y-1 transition-all duration-300 cursor-pointer bg-bg-card border border-border-custom relative rounded-2xl flex flex-col justify-between"
                 >
                   <div className="relative w-full h-[180px] bg-bg-primary overflow-hidden border-b border-border-custom">
-                    <Image
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
                       src={item.image}
                       alt={item.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 25vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300 backdrop-blur-xs">
                       <div className="p-2 py-1.5 rounded bg-accent text-white shadow-custom scale-90 group-hover:scale-100 transition-transform duration-300 flex items-center gap-1.5 font-heading text-[10px] font-semibold">
@@ -283,12 +256,11 @@ export default function Gallery() {
 
             {/* Image section */}
             <div className="relative w-full md:w-3/5 h-[280px] sm:h-[350px] md:h-[450px]">
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={activeItem.image}
                 alt={activeItem.title}
-                fill
-                sizes="(max-width: 1024px) 100vw, 60vw"
-                className="object-cover"
+                className="w-full h-full object-cover"
               />
             </div>
 

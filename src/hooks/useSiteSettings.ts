@@ -41,7 +41,7 @@ export function useSiteSettings() {
 
   useEffect(() => {
     // Listen to real-time configuration overrides in Firestore
-    const docRef = doc(db, "settings", "general");
+    const docRef = doc(db, "settings", "primary");
     
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {

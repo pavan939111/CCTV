@@ -3,13 +3,14 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, MessageCircle, ShieldCheck, Star, Award, Clock } from "lucide-react";
-import { siteConfig } from "@/config/site.config";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { useLanguage } from "@/context/LanguageContext";
 
 export default function HeroSection() {
   const { t } = useLanguage();
-  const whatsappUrl = `https://wa.me/${siteConfig.whatsappNumber}?text=${encodeURIComponent(
-    "Hello Nakshatra CCTV Services. I would like to schedule a free site visit for CCTV installation in " + siteConfig.city + "."
+  const { settings } = useSiteSettings();
+  const whatsappUrl = `https://wa.me/${settings.whatsappNumber}?text=${encodeURIComponent(
+    "Hello Nakshatra CCTV Services. I would like to schedule a free site visit for CCTV installation in " + settings.city + "."
   )}`;
 
   return (

@@ -16,66 +16,39 @@ type Testimonial = {
   isPlaceholder?: boolean;
 };
 
-const placeholderReviews: Testimonial[] = [
-  {
-    id: "placeholder-1",
-    name: "Rahul Verma",
-    locality: "Clock Tower, Nalgonda",
-    rating: 5,
-    text: "Excellent service. The technicians arrived on time, mounted 8 bullet cameras, configured the NVR, and hid all cables behind conduits. Very neat work.",
-    date: "Google Review",
-    isPlaceholder: true,
-  },
-  {
-    id: "placeholder-2",
-    name: "Swati Reddy",
-    locality: "Suryapet Road, Nalgonda",
-    rating: 5,
-    text: "My legacy DVR lost video feed on all channels. Nakshatra's engineer diagnosed the SMPS power supply issue and repaired it within an hour. Highly recommended.",
-    date: "WhatsApp Feedback",
-    isPlaceholder: true,
-  },
-  {
-    id: "placeholder-3",
-    name: "Kiran Kumar",
-    locality: "Miryalaguda, Nalgonda",
-    rating: 5,
-    text: "Signed up for their commercial AMC for our retail showroom. Their monthly cleaning and camera health checkups have kept our systems 100% online.",
-    date: "Google Review",
-    isPlaceholder: true,
-  },
-];
-
 export default function Testimonials() {
-  const [testimonials, setTestimonials] = useState<Testimonial[]>(placeholderReviews);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchTestimonials() {
       try {
         const q = query(
           collection(db, "testimonials"),
-          where("status", "==", "approved"),
-          orderBy("timestamp", "desc")
+          where("status", "==", "approved")
         );
         const querySnapshot = await getDocs(q);
-        const items: Testimonial[] = [];
+        const items: any[] = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           items.push({
             id: doc.id,
-            name: data.name,
-            locality: data.locality,
+            name: data.name || "",
+            locality: data.locality || "",
             rating: data.rating || 5,
-            text: data.text,
+            text: data.text || "",
             date: data.date || "Verified Customer",
+            timestamp: data.timestamp ? data.timestamp.toDate() : new Date(),
           });
         });
-        if (items.length > 0) {
-          setTestimonials(items);
-        }
+        // Sort testimonials locally by timestamp desc
+        items.sort((a, b) => b.timestamp - a.timestamp);
+        setTestimonials(items);
       } catch (err) {
         console.warn("Firestore testimonials fetch failed or empty:", err);
+      } finally {
+        setLoading(false);
       }
     }
     fetchTestimonials();
@@ -88,6 +61,18 @@ export default function Testimonials() {
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
+
+  if (loading) {
+    return (
+      <div className="w-full py-16 flex justify-center items-center bg-bg-primary">
+        <div className="h-6 w-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (testimonials.length === 0) {
+    return null;
+  }
 
   const current = testimonials[currentIndex];
 

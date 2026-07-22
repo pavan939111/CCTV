@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { Phone, MessageCircle, FileText, ChevronUp, ChevronDown, CheckCircle2 } from "lucide-react";
-import { siteConfig } from "@/config/site.config";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { useLanguage } from "@/context/LanguageContext";
 import { collection, query, getDocs, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -16,86 +15,18 @@ type ProductItem = {
   features: string[];
 };
 
-const defaultProductsData: ProductItem[] = [
-  {
-    name: "Premium 4K IP Bullet Camera",
-    image: "/images/ip-camera.png",
-    price: "3,499",
-    description: "Enterprise-grade weatherproof bullet security camera featuring ultra-sharp 4K monitoring. Ideal for outdoor driveways, boundaries, and commercial sites.",
-    features: [
-      "4K Ultra HD Resolution",
-      "AI Person & Vehicle Detection",
-      "Power-over-Ethernet (PoE) Support",
-    ],
-  },
-  {
-    name: "Smart WiFi Pan-Tilt Camera",
-    image: "/images/wifi-camera.png",
-    price: "2,199",
-    description: "Highly versatile smart wireless dome camera with full 360-degree pan-tilt control, real-time two-way audio, and direct smartphone notification alerts.",
-    features: [
-      "360° Rotatable Dome View",
-      "Two-Way Real-time Audio",
-      "Human Motion Tracking Alerts",
-    ],
-  },
-  {
-    name: "High-Def Vandal Dome Camera",
-    image: "/images/dome-camera.png",
-    price: "1,899",
-    description: "Compact dome security camera designed for indoor rooms, offices, and retail lobbies. Outfitted with smart infrared lights for clear night vision.",
-    features: [
-      "5MP High-Resolution Sensor",
-      "Weatherproof & Vandal-Resistant",
-      "Smart Infrared Night Vision",
-    ],
-  },
-  {
-    name: "PTZ Speed Dome Camera",
-    image: "/images/ptz-camera.png",
-    price: "9,999",
-    description: "Heavy-duty outdoor speed dome camera with 30x optical zoom capabilities, active tracking system locks, and long-range laser night illumination.",
-    features: [
-      "30x Optical Zoom Control",
-      "Auto-Tracking Target Lock",
-      "Long-Range Laser Night Vision",
-    ],
-  },
-  {
-    name: "Multi-Channel NVR Recorder",
-    image: "/images/nvr.png",
-    price: "6,499",
-    description: "Centralized network video recorder for security video storage, managing up to 16 digital IP feeds with smart space-saving H.265+ compression.",
-    features: [
-      "H.265+ Smart Compression",
-      "Supports Up to 16 Cameras",
-      "Auto-Backup Cloud Logging",
-    ],
-  },
-  {
-    name: "CCTV Installation Accessories",
-    image: "/images/accessories.png",
-    price: "999",
-    description: "High-grade components including solid copper Cat6 cabling, consolidated SMPS power distributors, and gold-plated BNC connectors.",
-    features: [
-      "Coaxial Cat6 Copper Cables",
-      "Heavy-Duty SMPS Power Unit",
-      "Shielded BNC/DC Connectors",
-    ],
-  },
-];
-
 export default function Products() {
   const { t } = useLanguage();
-  const [products, setProducts] = useState<ProductItem[]>(defaultProductsData);
+  const { settings } = useSiteSettings();
+  const [products, setProducts] = useState<ProductItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const q = query(collection(db, "products"), orderBy("timestamp", "desc"));
+        const q = query(collection(db, "products"));
         const querySnapshot = await getDocs(q);
-        const items: ProductItem[] = [];
+        const items: any[] = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           items.push({
@@ -104,11 +35,11 @@ export default function Products() {
             price: data.price || "0",
             description: data.description || "",
             features: Array.isArray(data.features) ? data.features : [],
+            timestamp: data.timestamp ? data.timestamp.toDate() : new Date(0),
           });
         });
-        if (items.length > 0) {
-          setProducts(items);
-        }
+        items.sort((a, b) => b.timestamp - a.timestamp);
+        setProducts(items);
       } catch (err) {
         console.error("Error fetching products from Firestore:", err);
       } finally {
@@ -120,10 +51,23 @@ export default function Products() {
   }, []);
 
   const getWhatsappUrl = (productName: string) => {
-    return `https://wa.me/${siteConfig.whatsappNumber}?text=${encodeURIComponent(
+    return `https://wa.me/${settings.whatsappNumber}?text=${encodeURIComponent(
       `Hello. I am interested in the ${productName}. Please share the quotation.`
     )}`;
   };
+
+  if (loading) {
+    return (
+      <div className="w-full py-16 flex justify-center items-center bg-bg-secondary">
+        <div className="h-6 w-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (products.length === 0) {
+    return null;
+  }
+
 
   return (
     <section id="products" className="w-full py-16 md:py-24 bg-bg-secondary border-b border-border-custom overflow-hidden">
@@ -142,13 +86,6 @@ export default function Products() {
           </p>
         </div>
 
-        {/* Products Grid */}
-        {loading && products === defaultProductsData ? (
-          <div className="py-12 flex flex-col items-center justify-center">
-            <div className="h-8 w-8 border-2 border-accent border-t-transparent rounded-full animate-spin mb-3" />
-            <p className="text-xs text-text-secondary">Loading hardware catalogue...</p>
-          </div>
-        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {products.map((product) => (
               <ProductCard
@@ -159,7 +96,6 @@ export default function Products() {
               />
             ))}
           </div>
-        )}
 
       </div>
     </section>
@@ -176,6 +112,7 @@ function ProductCard({
   t: any;
   getWhatsappUrl: (name: string) => string;
 }) {
+  const { settings } = useSiteSettings();
   const [showOptions, setShowOptions] = useState(false);
 
   return (
@@ -185,12 +122,11 @@ function ProductCard({
       <div className="space-y-4">
         {/* Image Frame */}
         <div className="relative w-full h-[180px] sm:h-[200px] rounded-xl overflow-hidden bg-bg-primary border border-border-custom group-hover:border-accent/20 transition-colors">
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src={product.image}
             alt={product.name}
-            fill
-            sizes="(max-width: 768px) 100vw, 33vw"
-            className="object-cover group-hover:scale-102 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-bg-primary/20 to-transparent pointer-events-none" />
         </div>
@@ -247,7 +183,7 @@ function ProductCard({
             
             {/* Call */}
             <a
-              href={`tel:${siteConfig.phone}`}
+              href={`tel:${settings.phone}`}
               className="flex flex-col items-center gap-1.5 p-2 hover:bg-bg-primary rounded-lg transition-colors flex-1 text-center"
             >
               <div className="p-2.5 rounded-full bg-accent/10 border border-accent/20">

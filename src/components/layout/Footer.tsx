@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import { Mail, Phone, MapPin, Clock, ShieldCheck } from "lucide-react";
-import { siteConfig } from "@/config/site.config";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 export default function Footer() {
+  const { settings } = useSiteSettings();
+
   return (
     <footer className="w-full bg-bg-secondary border-t border-border-custom text-text-secondary py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -16,28 +20,28 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-sm leading-relaxed text-text-secondary">
-              Professional CCTV installation, repair, and AMC services for homes, businesses, and industrial properties in {siteConfig.city}.
+              Professional CCTV installation, repair, and AMC services for homes, businesses, and industrial properties in {settings.city}.
             </p>
             <div className="space-y-3.5 pt-2 text-sm">
               <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-accent shrink-0 mt-0.5" />
-                <span className="text-text-secondary">{siteConfig.fullAddress}</span>
+                <span className="text-text-secondary">{settings.fullAddress}</span>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-accent shrink-0" />
-                <a href={`tel:${siteConfig.phone}`} className="hover:text-accent transition-colors duration-300">
-                  {siteConfig.phone}
+                <a href={`tel:${settings.phone}`} className="hover:text-accent transition-colors duration-300">
+                  {settings.phone}
                 </a>
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-accent shrink-0" />
-                <a href={`mailto:${siteConfig.email}`} className="hover:text-accent transition-colors duration-300">
-                  {siteConfig.email}
+                <a href={`mailto:${settings.email}`} className="hover:text-accent transition-colors duration-300">
+                  {settings.email}
                 </a>
               </div>
               <div className="flex items-start gap-3">
                 <Clock className="h-5 w-5 text-accent shrink-0 mt-0.5" />
-                <span>{siteConfig.workingHours}</span>
+                <span>{settings.workingHours}</span>
               </div>
             </div>
           </div>
@@ -126,7 +130,7 @@ export default function Footer() {
               Service Areas
             </h4>
             <div className="flex flex-wrap gap-2">
-              {siteConfig.serviceAreas.map((area) => (
+              {(settings.serviceAreas || []).map((area) => (
                 <span
                   key={area}
                   className="px-2.5 py-1 text-xs rounded bg-bg-primary/50 border border-border-custom text-text-secondary"
@@ -135,10 +139,10 @@ export default function Footer() {
                 </span>
               ))}
             </div>
-            {siteConfig.gstNumber && (
+            {settings.gstNumber && (
               <div className="pt-2 text-xs flex items-center gap-2 text-text-secondary/60">
                 <ShieldCheck className="h-4 w-4 text-accent" />
-                <span>GST: {siteConfig.gstNumber}</span>
+                <span>GST: {settings.gstNumber}</span>
               </div>
             )}
           </div>
@@ -146,7 +150,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-16 pt-8 border-t border-border-custom flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
-          <p>© {new Date().getFullYear()} {siteConfig.name}. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Nakshatra CCTV. All rights reserved.</p>
           
           <div className="flex gap-6">
             <Link href="/privacy-policy" className="hover:text-accent transition-colors duration-300">

@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Phone, Mail, MapPin, Clock, Send, MessageCircle } from "lucide-react";
-import { siteConfig } from "@/config/site.config";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { useLanguage } from "@/context/LanguageContext";
 
 const OsmMap = dynamic(() => import("../ui/OsmMap"), {
@@ -19,6 +19,7 @@ const OsmMap = dynamic(() => import("../ui/OsmMap"), {
 
 export default function Contact() {
   const { t } = useLanguage();
+  const { settings } = useSiteSettings();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -71,7 +72,7 @@ Cameras: ${formDataForWa.cameras}
 Requirements: ${formDataForWa.message || "N/A"}
 Please contact me.`;
 
-    return `https://wa.me/${siteConfig.whatsappNumber}?text=${encodeURIComponent(text)}`;
+    return `https://wa.me/${settings.whatsappNumber}?text=${encodeURIComponent(text)}`;
   };
 
   return (
@@ -268,7 +269,7 @@ Please contact me.`;
                   <MapPin className="h-5 w-5 text-accent shrink-0 mt-0.5" />
                   <div>
                     <span className="block text-text-primary font-bold">Office Address</span>
-                    <span className="text-text-secondary leading-relaxed">{siteConfig.fullAddress}</span>
+                    <span className="text-text-secondary leading-relaxed">{settings.fullAddress}</span>
                   </div>
                 </div>
                 
@@ -276,8 +277,8 @@ Please contact me.`;
                   <Phone className="h-5 w-5 text-accent shrink-0 mt-0.5" />
                   <div>
                     <span className="block text-text-primary font-bold">Phone Connection</span>
-                    <a href={`tel:${siteConfig.phone}`} className="text-text-secondary hover:text-accent transition-colors duration-300">
-                      {siteConfig.phone}
+                    <a href={`tel:${settings.phone}`} className="text-text-secondary hover:text-accent transition-colors duration-300">
+                      {settings.phone}
                     </a>
                   </div>
                 </div>
@@ -286,8 +287,8 @@ Please contact me.`;
                   <Mail className="h-5 w-5 text-accent shrink-0 mt-0.5" />
                   <div>
                     <span className="block text-text-primary font-bold">Email Inbox</span>
-                    <a href={`mailto:${siteConfig.email}`} className="text-text-secondary hover:text-accent transition-colors duration-300">
-                      {siteConfig.email}
+                    <a href={`mailto:${settings.email}`} className="text-text-secondary hover:text-accent transition-colors duration-300">
+                      {settings.email}
                     </a>
                   </div>
                 </div>
@@ -296,7 +297,7 @@ Please contact me.`;
                   <Clock className="h-5 w-5 text-accent shrink-0 mt-0.5" />
                   <div>
                     <span className="block text-text-primary font-bold">Operating Hours</span>
-                    <span className="text-text-secondary leading-relaxed">{siteConfig.workingHours}</span>
+                    <span className="text-text-secondary leading-relaxed">{settings.workingHours}</span>
                   </div>
                 </div>
               </div>
@@ -306,7 +307,7 @@ Please contact me.`;
               <OsmMap />
               <div className="flex gap-4">
                 <a
-                  href={siteConfig.googleMapsLink}
+                  href={settings.googleMapsLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full border border-border-custom bg-bg-card hover:bg-bg-secondary text-text-primary text-xs font-bold transition-all duration-300"

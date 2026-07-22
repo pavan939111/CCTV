@@ -1,53 +1,65 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, HelpCircle } from "lucide-react";
-import { siteConfig } from "@/config/site.config";
 import { useLanguage } from "@/context/LanguageContext";
+import { collection, query, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 type FAQItem = {
+  id: string;
   question: string;
   answer: string;
 };
 
-const faqData: FAQItem[] = [
-  {
-    question: `How much does CCTV installation cost in ${siteConfig.city}?`,
-    answer: `The cost of CCTV installation in ${siteConfig.city} depends on camera types (analog or IP network), quantities, and layout complexity. A basic 4-camera High-Definition analog system setup starts around ₹12,000–₹15,000 including DVR and wiring. Advanced digital IP camera setups (4K Resolution, POE cabling) start at ₹20,000. Contact us for a precise, itemized quote based on your free site survey.`,
-  },
-  {
-    question: "Which CCTV brand is the best for security?",
-    answer: "We recommend CP Plus, Hikvision, and Dahua for residential and standard commercial properties. These brands represent the highest value-for-money, reliability, and app features. For premium high-security perimeters, Honeywell and Axis offer specialized enterprise equipment. We only deal in 100% genuine OEM products carrying official factory warranties.",
-  },
-  {
-    question: "How many cameras do I need for my home or retail shop?",
-    answer: "A standard double-story home typically requires 4 cameras: 1 at the main entrance, 1 at the rear exit, and 2 covering side pathways or the parking driveway. For small retail shops, 2 to 3 cameras are usually sufficient: 1 covering the cash counter directly and 2 capturing customer aisles and loading entryways. We design personalized, custom coverage layouts during our site surveys.",
-  },
-  {
-    question: "How long does the physical installation process take?",
-    answer: "For standard residential setups (2 to 4 cameras), the installation is typically completed in 3 to 5 hours on a single day. For larger offices or warehouses (8+ cameras, POE network switches, NVR configurations), it can take 1 to 2 days. We ensure clean cabling, robust conduit routing, and zero mess.",
-  },
-  {
-    question: "Do you provide warranties on hardware and installation services?",
-    answer: "Yes, absolutely. All CCTV hardware (cameras, recorders, hard drives, power supplies) carries standard manufacturer warranties ranging from 1 to 2 years. In addition, Nakshatra provides a comprehensive 1-year service warranty on all labor, cabling, and structural layouts. If you experience video loss, we resolve it at no service cost.",
-  },
-  {
-    question: "Do you offer Annual Maintenance Contracts (AMC)?",
-    answer: "Yes, we provide both Comprehensive and Non-Comprehensive AMCs for homes, offices, schools, and apartments. Our AMC covers periodic visual alignment checks, camera lens cleaning, cabling diagnostics, connector checking, backup recording test checks, and rapid priority support. Regular checkups prevent server crashes or system downtime.",
-  },
-  {
-    question: "Can I monitor my security cameras live on my mobile phone?",
-    answer: "Yes. All modern CCTV setups we install support remote cloud monitoring. We configure official mobile apps (like Hik-Connect, gCMOB, DMSS) on your smartphones and tablets, allowing you to stream live video grids, review past recording history, and receive motion alert notifications from anywhere in the world with an active internet connection.",
-  },
-];
-
 export default function FAQ() {
   const { t } = useLanguage();
+  const [faqs, setFaqs] = useState<FAQItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchFaqs = async () => {
+      try {
+        const q = query(collection(db, "faqs"));
+        const querySnapshot = await getDocs(q);
+        const items: any[] = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          items.push({
+            id: doc.id,
+            question: data.question || "",
+            answer: data.answer || "",
+            timestamp: data.timestamp ? data.timestamp.toDate() : new Date(0),
+          });
+        });
+        items.sort((a, b) => b.timestamp - a.timestamp);
+        setFaqs(items);
+      } catch (err) {
+        console.error("Error fetching FAQs:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFaqs();
+  }, []);
 
   const toggleFAQ = (idx: number) => {
     setOpenIdx(openIdx === idx ? null : idx);
   };
+
+  if (loading) {
+    return (
+      <div className="w-full py-12 flex justify-center items-center bg-bg-primary">
+        <div className="h-6 w-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // If database is empty, do not show any hardcoded fallback data
+  if (faqs.length === 0) {
+    return null;
+  }
 
   return (
     <section id="faq" className="w-full py-20 bg-bg-primary overflow-hidden border-b border-border-custom">
@@ -68,11 +80,11 @@ export default function FAQ() {
 
         {/* Accordions */}
         <div className="space-y-4">
-          {faqData.map((faq, idx) => {
+          {faqs.map((faq, idx) => {
             const isOpen = openIdx === idx;
             return (
               <div
-                key={idx}
+                key={faq.id}
                 className="glass-card overflow-hidden transition-all duration-300 bg-bg-card border border-border-custom rounded-xl"
               >
                 <button
