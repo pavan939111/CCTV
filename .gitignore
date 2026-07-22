@@ -42,3 +42,8 @@ next-env.d.ts
 
 # temporary scratch scripts
 /scratch/
+
+# Firebase rules
+firestore.rules
+storage.rules
+
