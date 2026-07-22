@@ -245,6 +245,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </header>
 
+      {/* Sidebar Backdrop Overlay on Mobile */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-15 md:hidden"
+        />
+      )}
+
       {/* Sidebar Navigation */}
       <aside
         className={`fixed md:sticky top-0 z-20 h-screen w-64 border-r border-border-custom bg-bg-primary/60 backdrop-blur-md p-6 flex flex-col justify-between transition-transform duration-300 md:translate-x-0 ${

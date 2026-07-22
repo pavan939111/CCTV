@@ -740,16 +740,6 @@ export default function CmsDashboard() {
           <h1 className="text-2xl md:text-3xl font-extrabold font-heading text-text-primary">{t.title}</h1>
           <p className="text-xs text-text-secondary mt-1">{t.subtitle}</p>
         </div>
-        {showInitializeBanner && (
-          <button
-            onClick={handlePrepopulate}
-            disabled={populating}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-accent/20 hover:bg-accent/30 border border-accent/40 text-accent text-xs font-bold transition cursor-pointer disabled:opacity-50 disabled:pointer-events-none self-start"
-          >
-            <Database className="h-4 w-4" />
-            <span>{populating ? t.populating : t.initDb}</span>
-          </button>
-        )}
       </div>
 
       {/* Selector Subtabs */}
