@@ -4,9 +4,12 @@ import { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { siteConfig } from "@/config/site.config";
 
 export default function OsmMap() {
+  const { settings } = useSiteSettings();
+
   useEffect(() => {
     // Fix default Leaflet icon assets missing in dynamic server builds
     delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -35,9 +38,9 @@ export default function OsmMap() {
         <Marker position={position}>
           <Popup>
             <div className="text-black font-sans text-xs">
-              <strong className="block text-accent font-bold mb-0.5">{siteConfig.name}</strong>
-              <span>{siteConfig.fullAddress}</span>
-              <span className="block mt-1 text-gray-500">{siteConfig.workingHours}</span>
+              <strong className="block text-accent font-bold mb-0.5">Nakshatra CCTV Services</strong>
+              <span>{settings.fullAddress}</span>
+              <span className="block mt-1 text-gray-500">{settings.workingHours}</span>
             </div>
           </Popup>
         </Marker>
