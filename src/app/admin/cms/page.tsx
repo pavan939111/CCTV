@@ -6,7 +6,7 @@ import {
   deleteDoc, updateDoc, serverTimestamp, orderBy 
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Plus, Trash2, Check, X, Star, Camera, HardDrive } from "lucide-react";
+import { Plus, Trash2, Check, X, Star, Camera, HardDrive, Pencil } from "lucide-react";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 
@@ -52,6 +52,7 @@ export default function CmsDashboard() {
   const [faqQuestion, setFaqQuestion] = useState("");
   const [faqAnswer, setFaqAnswer] = useState("");
   const [faqsLoading, setFaqsLoading] = useState(false);
+  const [editingFaqId, setEditingFaqId] = useState<string | null>(null);
 
   // Testimonials States
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -69,6 +70,7 @@ export default function CmsDashboard() {
   const [galDesc, setGalDesc] = useState("");
   const [galGridRef, setGalGridRef] = useState("");
   const [galleryLoading, setGalleryLoading] = useState(false);
+  const [editingGalleryId, setEditingGalleryId] = useState<string | null>(null);
 
   // Products States
   const [products, setProducts] = useState<ProductItem[]>([]);
@@ -78,6 +80,7 @@ export default function CmsDashboard() {
   const [prodDesc, setProdDesc] = useState("");
   const [prodFeaturesRaw, setProdFeaturesRaw] = useState("");
   const [productsLoading, setProductsLoading] = useState(false);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
 
   // Fetch FAQs
   const fetchFaqs = async () => {
@@ -184,24 +187,48 @@ export default function CmsDashboard() {
     if (activeSubTab === "products") fetchProducts();
   }, [activeSubTab]);
 
-  // Add FAQ
-  const handleAddFaq = async (e: React.FormEvent) => {
+  // Add or Edit FAQ
+  const handleSaveFaq = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!faqQuestion || !faqAnswer) return;
 
     try {
-      await addDoc(collection(db, "faqs"), {
-        question: faqQuestion,
-        answer: faqAnswer,
-        timestamp: serverTimestamp(),
-      });
+      if (editingFaqId) {
+        // Edit Mode
+        await updateDoc(doc(db, "faqs", editingFaqId), {
+          question: faqQuestion,
+          answer: faqAnswer,
+        });
+        setEditingFaqId(null);
+      } else {
+        // Add Mode
+        await addDoc(collection(db, "faqs"), {
+          question: faqQuestion,
+          answer: faqAnswer,
+          timestamp: serverTimestamp(),
+        });
+      }
       setFaqQuestion("");
       setFaqAnswer("");
       fetchFaqs();
     } catch (err) {
-      console.error("Add FAQ failed:", err);
-      alert("Failed to create FAQ item.");
+      console.error("Save FAQ failed:", err);
+      alert("Failed to save FAQ item.");
     }
+  };
+
+  // Trigger Edit FAQ Mode
+  const startEditFaq = (faq: FAQ) => {
+    setEditingFaqId(faq.id);
+    setFaqQuestion(faq.question);
+    setFaqAnswer(faq.answer);
+  };
+
+  // Cancel Edit FAQ Mode
+  const cancelEditFaq = () => {
+    setEditingFaqId(null);
+    setFaqQuestion("");
+    setFaqAnswer("");
   };
 
   // Delete FAQ
@@ -209,6 +236,7 @@ export default function CmsDashboard() {
     if (!confirm("Delete this FAQ item?")) return;
     try {
       await deleteDoc(doc(db, "faqs", id));
+      if (editingFaqId === id) cancelEditFaq();
       setFaqs(faqs.filter((item) => item.id !== id));
     } catch (err) {
       console.error("Delete FAQ failed:", err);
@@ -262,20 +290,33 @@ export default function CmsDashboard() {
     }
   };
 
-  // Add Gallery item
-  const handleAddGallery = async (e: React.FormEvent) => {
+  // Add or Edit Gallery item
+  const handleSaveGallery = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!galTitle || !galImage) return;
 
     try {
-      await addDoc(collection(db, "gallery"), {
-        title: galTitle,
-        location: galLocation || "Nalgonda",
-        image: galImage,
-        desc: galDesc,
-        gridRef: galGridRef || `PROJ_${Math.floor(10 + Math.random() * 90)}`,
-        timestamp: serverTimestamp(),
-      });
+      if (editingGalleryId) {
+        // Edit Mode
+        await updateDoc(doc(db, "gallery", editingGalleryId), {
+          title: galTitle,
+          location: galLocation,
+          image: galImage,
+          desc: galDesc,
+          gridRef: galGridRef,
+        });
+        setEditingGalleryId(null);
+      } else {
+        // Add Mode
+        await addDoc(collection(db, "gallery"), {
+          title: galTitle,
+          location: galLocation || "Nalgonda",
+          image: galImage,
+          desc: galDesc,
+          gridRef: galGridRef || `PROJ_${Math.floor(10 + Math.random() * 90)}`,
+          timestamp: serverTimestamp(),
+        });
+      }
       setGalTitle("");
       setGalLocation("");
       setGalImage("");
@@ -283,9 +324,29 @@ export default function CmsDashboard() {
       setGalGridRef("");
       fetchGallery();
     } catch (err) {
-      console.error("Add Gallery item failed:", err);
+      console.error("Save Gallery item failed:", err);
       alert("Failed to save gallery photo.");
     }
+  };
+
+  // Trigger Edit Gallery Mode
+  const startEditGallery = (item: GalleryItem) => {
+    setEditingGalleryId(item.id);
+    setGalTitle(item.title);
+    setGalLocation(item.location);
+    setGalImage(item.image);
+    setGalDesc(item.desc);
+    setGalGridRef(item.gridRef);
+  };
+
+  // Cancel Edit Gallery Mode
+  const cancelEditGallery = () => {
+    setEditingGalleryId(null);
+    setGalTitle("");
+    setGalLocation("");
+    setGalImage("");
+    setGalDesc("");
+    setGalGridRef("");
   };
 
   // Delete Gallery item
@@ -293,28 +354,42 @@ export default function CmsDashboard() {
     if (!confirm("Delete this gallery photo record?")) return;
     try {
       await deleteDoc(doc(db, "gallery", id));
+      if (editingGalleryId === id) cancelEditGallery();
       setGallery(gallery.filter((item) => item.id !== id));
     } catch (err) {
       console.error("Delete Gallery failed:", err);
     }
   };
 
-  // Add Hardware Product item
-  const handleAddProduct = async (e: React.FormEvent) => {
+  // Add or Edit Hardware Product item
+  const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prodName || !prodPrice || !prodImage) return;
 
     const features = prodFeaturesRaw.split(",").map((f) => f.trim()).filter(Boolean);
 
     try {
-      await addDoc(collection(db, "products"), {
-        name: prodName,
-        price: prodPrice,
-        image: prodImage,
-        description: prodDesc,
-        features: features,
-        timestamp: serverTimestamp(),
-      });
+      if (editingProductId) {
+        // Edit Mode
+        await updateDoc(doc(db, "products", editingProductId), {
+          name: prodName,
+          price: prodPrice,
+          image: prodImage,
+          description: prodDesc,
+          features: features,
+        });
+        setEditingProductId(null);
+      } else {
+        // Add Mode
+        await addDoc(collection(db, "products"), {
+          name: prodName,
+          price: prodPrice,
+          image: prodImage,
+          description: prodDesc,
+          features: features,
+          timestamp: serverTimestamp(),
+        });
+      }
       setProdName("");
       setProdPrice("");
       setProdImage("");
@@ -322,9 +397,29 @@ export default function CmsDashboard() {
       setProdFeaturesRaw("");
       fetchProducts();
     } catch (err) {
-      console.error("Add Product failed:", err);
+      console.error("Save Product failed:", err);
       alert("Failed to save hardware product.");
     }
+  };
+
+  // Trigger Edit Product Mode
+  const startEditProduct = (item: ProductItem) => {
+    setEditingProductId(item.id);
+    setProdName(item.name);
+    setProdPrice(item.price);
+    setProdImage(item.image);
+    setProdDesc(item.description);
+    setProdFeaturesRaw(item.features.join(", "));
+  };
+
+  // Cancel Edit Product Mode
+  const cancelEditProduct = () => {
+    setEditingProductId(null);
+    setProdName("");
+    setProdPrice("");
+    setProdImage("");
+    setProdDesc("");
+    setProdFeaturesRaw("");
   };
 
   // Delete Hardware Product item
@@ -332,6 +427,7 @@ export default function CmsDashboard() {
     if (!confirm("Delete this hardware product record from inventory?")) return;
     try {
       await deleteDoc(doc(db, "products", id));
+      if (editingProductId === id) cancelEditProduct();
       setProducts(products.filter((item) => item.id !== id));
     } catch (err) {
       console.error("Delete Product failed:", err);
@@ -343,7 +439,7 @@ export default function CmsDashboard() {
       {/* Page Header */}
       <div>
         <h1 className="text-2xl md:text-3xl font-extrabold font-heading text-white">Content CMS</h1>
-        <p className="text-xs text-[#94A3B8] mt-1">Manage database overrides for landing page custom FAQs, reviews, installation photos, and hardware catalog products.</p>
+        <p className="text-xs text-[#94A3B8] mt-1">Manage, add, and edit database records for landing page FAQs, reviews, gallery photos, and products.</p>
       </div>
 
       {/* Selector Subtabs */}
@@ -393,10 +489,12 @@ export default function CmsDashboard() {
       {/* FAQs Panel */}
       {activeSubTab === "faqs" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* FAQ Add Form */}
+          {/* FAQ Form */}
           <div className="lg:col-span-4 bg-white/3 border border-white/10 rounded-xl p-5 space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-white border-b border-white/5 pb-2">Add New FAQ</h2>
-            <form onSubmit={handleAddFaq} className="space-y-4 text-xs">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-white border-b border-white/5 pb-2">
+              {editingFaqId ? "Edit FAQ Item" : "Add New FAQ"}
+            </h2>
+            <form onSubmit={handleSaveFaq} className="space-y-4 text-xs">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Question</label>
                 <input
@@ -421,13 +519,24 @@ export default function CmsDashboard() {
                 />
               </div>
 
-              <button
-                type="submit"
-                className="w-full py-2 bg-accent hover:bg-accent-glow text-white font-semibold rounded flex items-center justify-center gap-1.5 transition"
-              >
-                <Plus className="h-4 w-4" />
-                <span>Save FAQ Item</span>
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="flex-1 py-2 bg-accent hover:bg-accent-glow text-white font-semibold rounded flex items-center justify-center gap-1.5 transition cursor-pointer"
+                >
+                  {editingFaqId ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                  <span>{editingFaqId ? "Update FAQ" : "Save FAQ Item"}</span>
+                </button>
+                {editingFaqId && (
+                  <button
+                    type="button"
+                    onClick={cancelEditFaq}
+                    className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white font-semibold rounded transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
             </form>
           </div>
 
@@ -447,18 +556,32 @@ export default function CmsDashboard() {
                 {faqs.map((faq) => (
                   <div
                     key={faq.id}
-                    className="p-4 bg-white/3 border border-white/10 rounded-lg flex items-start justify-between gap-4"
+                    className={`p-4 border rounded-lg flex items-start justify-between gap-4 transition duration-300 ${
+                      editingFaqId === faq.id 
+                        ? "border-accent bg-accent/5" 
+                        : "bg-white/3 border-white/10"
+                    }`}
                   >
                     <div className="space-y-1">
                       <h4 className="text-sm font-bold text-white leading-tight">{faq.question}</h4>
                       <p className="text-xs text-[#94A3B8] leading-relaxed">{faq.answer}</p>
                     </div>
-                    <button
-                      onClick={() => handleDeleteFaq(faq.id)}
-                      className="p-2 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 rounded shrink-0 transition"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    <div className="flex gap-1.5 shrink-0">
+                      <button
+                        onClick={() => startEditFaq(faq)}
+                        className="p-2 border border-white/10 bg-white/5 hover:bg-white/10 text-white rounded transition cursor-pointer"
+                        title="Edit FAQ"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteFaq(faq.id)}
+                        className="p-2 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 rounded transition cursor-pointer"
+                        title="Delete FAQ"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -524,7 +647,7 @@ export default function CmsDashboard() {
 
               <button
                 type="submit"
-                className="w-full py-2 bg-accent hover:bg-accent-glow text-white font-semibold rounded flex items-center justify-center gap-1.5 transition"
+                className="w-full py-2 bg-accent hover:bg-accent-glow text-white font-semibold rounded flex items-center justify-center gap-1.5 transition cursor-pointer"
               >
                 <Plus className="h-4 w-4" />
                 <span>Save Review</span>
@@ -577,7 +700,7 @@ export default function CmsDashboard() {
                       {/* Approve / Reject Toggle Button */}
                       <button
                         onClick={() => handleApproveTestimonial(t.id, t.status)}
-                        className={`p-2 border rounded transition ${
+                        className={`p-2 border rounded transition cursor-pointer ${
                           t.status === "approved"
                             ? "border-yellow-500/20 bg-yellow-500/5 hover:bg-yellow-500/10 text-yellow-400"
                             : "border-green-500/20 bg-green-500/5 hover:bg-green-500/10 text-green-400"
@@ -590,7 +713,8 @@ export default function CmsDashboard() {
                       {/* Delete */}
                       <button
                         onClick={() => handleDeleteTestimonial(t.id)}
-                        className="p-2 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 rounded transition"
+                        className="p-2 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 rounded transition cursor-pointer"
+                        title="Delete Review"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -606,10 +730,12 @@ export default function CmsDashboard() {
       {/* Gallery Panel */}
       {activeSubTab === "gallery" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Gallery Add Form */}
+          {/* Gallery Form */}
           <div className="lg:col-span-4 bg-white/3 border border-white/10 rounded-xl p-5 space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-white border-b border-white/5 pb-2">Add Installation Photo</h2>
-            <form onSubmit={handleAddGallery} className="space-y-4 text-xs">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-white border-b border-white/5 pb-2">
+              {editingGalleryId ? "Edit Installation Photo" : "Add Installation Photo"}
+            </h2>
+            <form onSubmit={handleSaveGallery} className="space-y-4 text-xs">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Project Title</label>
                 <input
@@ -670,13 +796,24 @@ export default function CmsDashboard() {
                 />
               </div>
 
-              <button
-                type="submit"
-                className="w-full py-2 bg-accent hover:bg-accent-glow text-white font-semibold rounded flex items-center justify-center gap-1.5 transition"
-              >
-                <Plus className="h-4 w-4" />
-                <span>Save Gallery Photo</span>
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="flex-grow py-2 bg-accent hover:bg-accent-glow text-white font-semibold rounded flex items-center justify-center gap-1.5 transition cursor-pointer"
+                >
+                  {editingGalleryId ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                  <span>{editingGalleryId ? "Update Photo" : "Save Gallery Photo"}</span>
+                </button>
+                {editingGalleryId && (
+                  <button
+                    type="button"
+                    onClick={cancelEditGallery}
+                    className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white font-semibold rounded transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
             </form>
           </div>
 
@@ -696,7 +833,11 @@ export default function CmsDashboard() {
                 {gallery.map((item) => (
                   <div
                     key={item.id}
-                    className="bg-white/3 border border-white/10 rounded-xl overflow-hidden flex flex-col justify-between"
+                    className={`bg-white/3 border rounded-xl overflow-hidden flex flex-col justify-between transition duration-300 ${
+                      editingGalleryId === item.id 
+                        ? "border-accent ring-1 ring-accent" 
+                        : "border-white/10"
+                    }`}
                   >
                     <div className="relative w-full h-[150px] bg-bg-primary">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -720,10 +861,17 @@ export default function CmsDashboard() {
                         </p>
                       </div>
 
-                      <div className="pt-3 border-t border-white/5 flex justify-end">
+                      <div className="pt-3 border-t border-white/5 flex justify-end gap-2">
+                        <button
+                          onClick={() => startEditGallery(item)}
+                          className="p-2 border border-white/10 bg-white/5 hover:bg-white/10 text-white rounded transition flex items-center gap-1 text-[10px] font-bold cursor-pointer"
+                        >
+                          <Pencil className="h-3.5 w-3.5 text-accent" />
+                          <span>Edit</span>
+                        </button>
                         <button
                           onClick={() => handleDeleteGallery(item.id)}
-                          className="p-2 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 rounded transition flex items-center gap-1 text-[10px] font-bold"
+                          className="p-2 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 rounded transition flex items-center gap-1 text-[10px] font-bold cursor-pointer"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           <span>Delete</span>
@@ -741,10 +889,12 @@ export default function CmsDashboard() {
       {/* Products Panel */}
       {activeSubTab === "products" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Product Add Form */}
+          {/* Product Form */}
           <div className="lg:col-span-4 bg-white/3 border border-white/10 rounded-xl p-5 space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-white border-b border-white/5 pb-2">Add Hardware Product</h2>
-            <form onSubmit={handleAddProduct} className="space-y-4 text-xs">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-white border-b border-white/5 pb-2">
+              {editingProductId ? "Edit Hardware Product" : "Add Hardware Product"}
+            </h2>
+            <form onSubmit={handleSaveProduct} className="space-y-4 text-xs">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Product Name</label>
                 <input
@@ -806,13 +956,24 @@ export default function CmsDashboard() {
                 />
               </div>
 
-              <button
-                type="submit"
-                className="w-full py-2 bg-accent hover:bg-accent-glow text-white font-semibold rounded flex items-center justify-center gap-1.5 transition"
-              >
-                <Plus className="h-4 w-4" />
-                <span>Save Hardware Product</span>
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="flex-grow py-2 bg-accent hover:bg-accent-glow text-white font-semibold rounded flex items-center justify-center gap-1.5 transition cursor-pointer"
+                >
+                  {editingProductId ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                  <span>{editingProductId ? "Update Product" : "Save Hardware Product"}</span>
+                </button>
+                {editingProductId && (
+                  <button
+                    type="button"
+                    onClick={cancelEditProduct}
+                    className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white font-semibold rounded transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
             </form>
           </div>
 
@@ -832,7 +993,11 @@ export default function CmsDashboard() {
                 {products.map((item) => (
                   <div
                     key={item.id}
-                    className="bg-white/3 border border-white/10 rounded-xl overflow-hidden flex flex-col justify-between"
+                    className={`bg-white/3 border rounded-xl overflow-hidden flex flex-col justify-between transition duration-300 ${
+                      editingProductId === item.id 
+                        ? "border-accent ring-1 ring-accent" 
+                        : "border-white/10"
+                    }`}
                   >
                     <div className="relative w-full h-[140px] bg-bg-primary">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -855,13 +1020,20 @@ export default function CmsDashboard() {
                         </p>
                       </div>
 
-                      <div className="pt-3 border-t border-white/5 flex justify-end">
+                      <div className="pt-3 border-t border-white/5 flex justify-end gap-2">
+                        <button
+                          onClick={() => startEditProduct(item)}
+                          className="p-2 border border-white/10 bg-white/5 hover:bg-white/10 text-white rounded transition flex items-center gap-1 text-[10px] font-bold cursor-pointer"
+                        >
+                          <Pencil className="h-3.5 w-3.5 text-accent" />
+                          <span>Edit</span>
+                        </button>
                         <button
                           onClick={() => handleDeleteProduct(item.id)}
-                          className="p-2 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 rounded transition flex items-center gap-1 text-[10px] font-bold"
+                          className="p-2 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 rounded transition flex items-center gap-1 text-[10px] font-bold cursor-pointer"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                          <span>Delete Product</span>
+                          <span>Delete</span>
                         </button>
                       </div>
                     </div>
