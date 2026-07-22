@@ -6,7 +6,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // Core static pages
   const staticPages = [
     "",
+    "/about",
+    "/contact",
     "/products",
+    "/gallery",
     "/cctv-installation",
     "/cctv-repair",
     "/wireless-cctv-installation",
@@ -15,6 +18,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/biometric-attendance-system",
     "/video-door-phone",
     "/access-control-system",
+    "/privacy-policy",
+    "/terms",
   ];
 
   // Dynamic regional location pages
