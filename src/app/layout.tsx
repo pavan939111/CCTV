@@ -19,21 +19,21 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://nakshatracctv.com"),
-  title: "Nakshatra CCTV Services | Premium CCTV Installation & Surveillance",
-  description: "Secure your home & business with professional CCTV installation, repair, maintenance, and AMC services in Nalgonda & Suryapet. Certified experts and 24/7 support.",
+  title: "Best CCTV Camera Installation in Nalgonda | Nakshatra CCTV",
+  description: "Looking for the best CCTV installation, repair, and security camera dealer in Nalgonda & Suryapet? 📞 Call +91 79815 77411 for a free on-site physical survey and price quote today!",
   keywords: [
     "CCTV Installation Nalgonda",
-    "Security Camera Setup Suryapet",
+    "Security Camera Setup Nalgonda",
     "CCTV Repair Service Nalgonda",
     "IP Camera Installation Nalgonda",
     "Wireless CCTV Nalgonda",
-    "AMC CCTV Maintenance",
+    "AMC CCTV Maintenance Nalgonda",
     "Best CCTV Dealer Nalgonda",
   ],
   authors: [{ name: "Nakshatra CCTV Services" }],
   openGraph: {
-    title: "Nakshatra CCTV Services | Premium CCTV Installation & Surveillance",
-    description: "Secure your home & business with professional CCTV installation, repair, maintenance, and AMC services in Nalgonda & Suryapet.",
+    title: "Best CCTV Camera Installation in Nalgonda | Nakshatra CCTV Services",
+    description: "Looking for the best CCTV installation, repair, and security camera dealer in Nalgonda & Suryapet? Get a free on-site physical survey today!",
     url: "https://nakshatracctv.com",
     siteName: "Nakshatra CCTV Services",
     images: [
